@@ -1,0 +1,219 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ */
+/*  Design tokens — Courtside "game night" theme                       */
+/* ------------------------------------------------------------------ */
+@theme {
+  --color-ink: #06070b;
+  --color-ink-2: #0b0d14;
+  --color-surface: #11131c;
+  --color-surface-2: #181b27;
+  --color-line: #242838;
+  --color-fg: #f3f5fa;
+  --color-muted: #99a0b4;
+  --color-faint: #5c6377;
+
+  --color-accent: #ff6a1a;   /* basketball orange  */
+  --color-accent-2: #ffb020; /* hardwood gold      */
+  --color-accent-3: #3d7bff; /* electric blue      */
+  --color-good: #2fd27a;
+  --color-bad: #ff4d4d;
+
+  --radius-card: 18px;
+}
+
+@theme inline {
+  --font-display: var(--font-anton);
+  --font-sans: var(--font-inter);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Base                                                               */
+/* ------------------------------------------------------------------ */
+* {
+  border-color: var(--color-line);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-ink);
+  color: var(--color-fg);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04";
+  overflow-x: hidden;
+  /* layered "spotlight on a dark court" backdrop */
+  background-image:
+    radial-gradient(120% 80% at 50% -10%, rgba(255, 106, 26, 0.18), transparent 55%),
+    radial-gradient(90% 60% at 85% 10%, rgba(61, 123, 255, 0.10), transparent 60%),
+    linear-gradient(180deg, #06070b 0%, #06070b 100%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #0a0a0a;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--color-ink); }
+::-webkit-scrollbar-thumb {
+  background: #2a2f40;
+  border-radius: 99px;
+  border: 2px solid var(--color-ink);
+}
+::-webkit-scrollbar-thumb:hover { background: #3a4256; }
+
+/* ------------------------------------------------------------------ */
+/*  Typography helpers                                                 */
+/* ------------------------------------------------------------------ */
+.font-display {
+  font-family: var(--font-display), "Arial Narrow", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.92;
+}
+
+.stat-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.eyebrow {
+  font-family: var(--font-sans), sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.text-gradient {
+  background: linear-gradient(100deg, #fff 0%, #ffd9b8 40%, var(--color-accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Surfaces                                                           */
+/* ------------------------------------------------------------------ */
+.card {
+  background: linear-gradient(180deg, rgba(24, 27, 39, 0.9), rgba(17, 19, 28, 0.9));
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+}
+
+.card-hover {
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 106, 26, 0.5);
+  box-shadow: 0 18px 50px -20px rgba(255, 106, 26, 0.4);
+}
+
+.glass {
+  background: rgba(11, 13, 20, 0.6);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+.hairline {
+  border-bottom: 1px solid var(--color-line);
+}
+
+.glow-accent {
+  box-shadow: 0 0 0 1px rgba(255, 106, 26, 0.35),
+    0 20px 60px -25px rgba(255, 106, 26, 0.7);
+}
+
+/* chip / pill */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-line);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.28rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* faint hardwood line texture for hero / sections */
+.court-lines {
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 64px);
+  -webkit-mask-image: radial-gradient(80% 60% at 50% 40%, #000 30%, transparent 80%);
+  mask-image: radial-gradient(80% 60% at 50% 40%, #000 30%, transparent 80%);
+}
+
+/* grain overlay */
+.noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* divider with center accent dot */
+.section-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-line), transparent);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Animations                                                         */
+/* ------------------------------------------------------------------ */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 32s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2.2s ease-in-out infinite;
+}
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-floaty { animation: floaty 6s ease-in-out infinite; }
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(255, 106, 26, 0.45); }
+  70% { box-shadow: 0 0 0 16px rgba(255, 106, 26, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 106, 26, 0); }
+}
+.pulse-ring { animation: pulse-ring 2.4s infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* utility: hide scrollbar for horizontal rails */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

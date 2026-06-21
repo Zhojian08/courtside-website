@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "courtside",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\npm.cmd",
+      "runtimeArgs": ["--prefix", "C:\\Users\\DHAVE\\Desktop\\courtside-website", "run", "dev", "--", "-p", "3000"],
+      "port": 3000
+    }
+  ]
+}
