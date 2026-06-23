@@ -1,16 +1,17 @@
 import {
-  getGamePerformers,
-  getLatestGame,
   getSeasonLeaders,
   getSiteStats,
   getStandings,
   getTeam,
+  getWexmeFeed,
   listGames,
 } from "@/lib/courtside";
+import type { GameWithTeams } from "@/lib/courtside/types";
 import { Hero } from "@/components/home/Hero";
 import { Ticker } from "@/components/home/Ticker";
 import { StatStrip } from "@/components/home/StatStrip";
 import { LeaderColumn } from "@/components/home/LeaderColumn";
+import { LiveBoard } from "@/components/home/LiveBoard";
 import { GameCard } from "@/components/cards/GameCard";
 import { PerformerCard } from "@/components/cards/PerformerCard";
 import { StandingsTable } from "@/components/tables/StandingsTable";
@@ -19,18 +20,23 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 
 export const dynamic = "force-dynamic";
 
-export default function HomePage() {
-  const latest = getLatestGame();
-  const latestHome = getTeam(latest.homeTeamId)!;
-  const latestAway = getTeam(latest.awayTeamId)!;
+export default async function HomePage() {
+  const wexme = await getWexmeFeed();
 
-  const recent = listGames({ limit: 12 }).map((g) => ({
+  const staticFinals: GameWithTeams[] = listGames().map((g) => ({
     game: g,
     home: getTeam(g.homeTeamId)!,
     away: getTeam(g.awayTeamId)!,
   }));
 
-  const performers = getGamePerformers(latest);
+  // WEXME finals join the real-results feed, newest first
+  const allFinals = [...wexme.final, ...staticFinals].sort((a, b) =>
+    b.game.date.localeCompare(a.game.date)
+  );
+
+  const latest = allFinals[0];
+  const recent = allFinals.slice(0, 12);
+  const performers = latest.game.performers;
 
   const pts = getSeasonLeaders("PTS", { limit: 5 });
   const reb = getSeasonLeaders("REB", { limit: 5 });
@@ -41,22 +47,39 @@ export default function HomePage() {
   const fiba = getStandings("FIBA", "Group B");
 
   const stats = getSiteStats();
+  const hasLive = wexme.live.length > 0 || wexme.scheduled.length > 0;
 
   return (
     <>
-      <Hero game={latest} home={latestHome} away={latestAway} />
+      <Hero game={latest.game} home={latest.home} away={latest.away} />
 
       <Ticker items={recent} />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Performers of the latest game */}
-        {performers.length > 0 && (
-          <section className="py-24 sm:py-32">
+        {/* WEXME live & upcoming */}
+        {hasLive && (
+          <section className="py-20 sm:py-28">
             <SectionHeading
               index="01"
-              eyebrow={`${latestAway.abbr} @ ${latestHome.abbr} · Top Performers`}
+              eyebrow="WEXME · Synced from your system"
+              title="Live & Upcoming"
+              href="/games?league=WEXME"
+              hrefLabel="All WEXME games"
+            />
+            <Reveal>
+              <LiveBoard initialLive={wexme.live} initialScheduled={wexme.scheduled} />
+            </Reveal>
+          </section>
+        )}
+
+        {/* Top performers from the latest result */}
+        {performers.length > 0 && (
+          <section className="py-16 sm:py-24">
+            <SectionHeading
+              index="02"
+              eyebrow={`${latest.away.abbr} @ ${latest.home.abbr} · Top Performers`}
               title="Stars of the Game"
-              href={`/games/${latest.id}`}
+              href={`/games/${latest.game.id}`}
               hrefLabel="Full recap"
             />
             <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
@@ -69,9 +92,9 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* Latest games */}
+        {/* Latest games (WEXME finals + NBA/PBA/FIBA) */}
         <section className="py-16 sm:py-24">
-          <SectionHeading index="02" eyebrow="Real Results" title="Latest Games" href="/games" />
+          <SectionHeading index="03" eyebrow="Real Results" title="Latest Games" href="/games" />
           <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {recent.slice(0, 6).map(({ game, home, away }) => (
               <RevealItem key={game.id}>
@@ -83,7 +106,7 @@ export default function HomePage() {
 
         {/* Season leaders */}
         <section className="py-16 sm:py-24">
-          <SectionHeading index="03" eyebrow="Who's Cooking" title="Stat Leaders" href="/leaders" />
+          <SectionHeading index="04" eyebrow="Who's Cooking" title="Stat Leaders" href="/leaders" />
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <LeaderColumn title="Points" color="#2f7dff" unit="PPG" leaders={pts} />
             <LeaderColumn title="Rebounds" color="#22c3e6" unit="RPG" leaders={reb} />
@@ -93,7 +116,7 @@ export default function HomePage() {
 
         {/* Standings preview */}
         <section className="py-16 sm:py-24">
-          <SectionHeading index="04" eyebrow="The Race" title="Standings" href="/standings" />
+          <SectionHeading index="05" eyebrow="The Race" title="Standings" href="/standings" />
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <Reveal>
               <StandingsTable rows={nba} title="NBA · West" />
@@ -112,7 +135,7 @@ export default function HomePage() {
           <Reveal>
             <StatStrip
               stats={[
-                { label: "Real games", value: stats.games },
+                { label: "Real games", value: stats.games + wexme.final.length + wexme.live.length + wexme.scheduled.length },
                 { label: "Players", value: stats.players },
                 { label: "Teams", value: stats.teams },
                 { label: "Leagues", value: stats.leagues },

@@ -101,7 +101,6 @@ export function Hero({
           >
             <div className="mb-3 flex items-center justify-between">
               <LeagueTag league={game.league} />
-              <span className="text-xs text-faint">Latest · FINAL</span>
             </div>
             <ScoreRow team={away} score={game.awayScore} win={game.awayScore > game.homeScore} />
             <div className="my-2.5 h-px bg-line" />

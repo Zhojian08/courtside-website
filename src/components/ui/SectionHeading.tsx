@@ -47,6 +47,7 @@ const LEAGUE_TAG: Record<string, { border: string; color: string }> = {
   NBA: { border: "rgba(47,125,255,0.45)", color: "#9ec4ff" },
   PBA: { border: "rgba(34,195,230,0.45)", color: "#7fe0f0" },
   FIBA: { border: "rgba(255,193,77,0.5)", color: "#ffce7a" },
+  WEXME: { border: "rgba(34,197,94,0.5)", color: "#86efac" },
 };
 
 export function LeagueTag({ league }: { league: string }) {

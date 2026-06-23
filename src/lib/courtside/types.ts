@@ -6,7 +6,9 @@
  * each record carries a `source` URL for traceability. No fabricated games.
  */
 
-export type League = "NBA" | "PBA" | "FIBA";
+export type League = "NBA" | "PBA" | "FIBA" | "WEXME";
+
+export type GameStatus = "scheduled" | "live" | "final";
 
 export type StatCategory = "PTS" | "REB" | "AST" | "BLK" | "STL";
 
@@ -70,6 +72,15 @@ export interface Game {
   recap: string;
   source: string;
   performers: GamePerformer[];
+  status?: GameStatus; // WEXME live data; static leagues are "final"
+  startsAt?: string; // ISO datetime for scheduled/live games
+  period?: string; // e.g. "Q3 · 05:41" while live
+}
+
+export interface GameWithTeams {
+  game: Game;
+  home: Team;
+  away: Team;
 }
 
 export interface StandingRow {

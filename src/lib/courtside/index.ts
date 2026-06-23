@@ -24,13 +24,22 @@ export type { Game, GamePerformer, Player, Team, SeasonLeader, StandingRow, Leag
  *  unchanged.
  * ============================================================ */
 
-export const LEAGUES: League[] = ["NBA", "PBA", "FIBA"];
+export const LEAGUES: League[] = ["NBA", "PBA", "FIBA", "WEXME"];
 
 export const LEAGUE_LABEL: Record<League, string> = {
   NBA: "NBA",
   PBA: "PBA",
   FIBA: "FIBA",
+  WEXME: "WEXME",
 };
+
+export {
+  getWexmeFeed,
+  getWexmeGameDetail,
+  getWexmeTeam,
+  getWexmeRoster,
+  type GameWithTeams,
+} from "./wexme";
 
 /* ---------------- Teams ---------------- */
 export function getTeam(id: string): Team | undefined {
