@@ -67,8 +67,8 @@ export function Hero({
           className="mt-6 max-w-xl text-lg leading-relaxed text-muted"
         >
           Box scores, standings, leaderboards and game-night stories for
-          basketball leagues of all ages — every stat straight from{" "}
-          <span className="text-fg">Courtside Live</span>.
+          basketball leagues of all ages, every stat straight from{" "}
+          <span className="text-fg">WeXmE</span>.
         </motion.p>
 
         <motion.div
