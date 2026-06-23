@@ -11,10 +11,12 @@ import { WexmeLogo } from "./WexmeLogo";
  * Drop the exact logo at `public/wexme-logo.png` to use it everywhere.
  */
 export function BrandLogo({
+  src = "/wexme-logo.png",
   imgClassName,
   fallbackClassName,
   withTagline = false,
 }: {
+  src?: string;
   imgClassName?: string;
   fallbackClassName?: string;
   withTagline?: boolean;
@@ -28,7 +30,7 @@ export function BrandLogo({
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/wexme-logo.png"
+      src={src}
       alt="WeXmE — United Arab Emirates"
       className={imgClassName}
       onError={() => setFailed(true)}

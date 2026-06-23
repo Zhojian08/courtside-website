@@ -40,7 +40,7 @@ export function SiteNav() {
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center" aria-label="WeXmE home">
-          <BrandLogo imgClassName="h-11 w-auto" fallbackClassName="text-[1.6rem]" />
+          <BrandLogo src="/wexme-mark.png" imgClassName="h-12 w-auto" fallbackClassName="text-[1.6rem]" />
         </Link>
 
         {/* desktop */}
