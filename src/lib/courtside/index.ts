@@ -1,16 +1,11 @@
-import "server-only";
-import { dataset, genPlayerLog } from "./generate";
 import { TEAMS, TEAMS_BY_ID } from "./teams";
-import {
-  performerPhoto,
-  readOverrides,
-  type OverrideStore,
-} from "./overrides";
+import { PLAYERS, PLAYERS_BY_ID } from "./players";
+import { GAMES } from "./games";
+import { rankedLeaders } from "./leaders";
 import type {
-  BoxEntry,
   Game,
+  GamePerformer,
   League,
-  PerformerLeader,
   Player,
   SeasonLeader,
   StandingRow,
@@ -18,45 +13,23 @@ import type {
   Team,
 } from "./types";
 
-export type { Game, Player, Team, PerformerLeader, SeasonLeader, StandingRow, BoxEntry, League, StatCategory };
+export type { Game, GamePerformer, Player, Team, SeasonLeader, StandingRow, League, StatCategory };
 
 /* ============================================================
- *  ADAPTER BOUNDARY
- *  ---------------------------------------------------------
- *  Everything below reads from the deterministic sample
- *  dataset. To go live, replace the bodies of these functions
- *  with `fetch(`${process.env.COURTSIDE_API_URL}/...`)` calls
- *  (Courtside Live exposes a private /api — add a read token).
- *  Keep the return shapes identical and the whole site works.
+ *  Real, sourced data adapter.
+ *  Everything below is backed by the static datasets in
+ *  teams.ts / players.ts / games.ts / leaders.ts, each row of
+ *  which carries a `source` URL (NBA, PBA, FIBA). No generated
+ *  games. Swap these arrays for live API calls and the UI is
+ *  unchanged.
  * ============================================================ */
 
-function withPhoto(p: Player, store: OverrideStore): Player {
-  const url = store.players[p.id];
-  return url ? { ...p, photoUrl: url } : p;
-}
+export const LEAGUES: League[] = ["NBA", "PBA", "FIBA"];
 
-const CATS: StatCategory[] = ["PTS", "REB", "AST", "BLK", "STL"];
-const STAT_OF: Record<StatCategory, keyof BoxEntry> = {
-  PTS: "pts",
-  REB: "reb",
-  AST: "ast",
-  BLK: "blk",
-  STL: "stl",
-};
-const AVG_OF: Record<StatCategory, keyof Player> = {
-  PTS: "ppg",
-  REB: "rpg",
-  AST: "apg",
-  BLK: "bpg",
-  STL: "spg",
-};
-
-export const CATEGORY_LABEL: Record<StatCategory, string> = {
-  PTS: "Points",
-  REB: "Rebounds",
-  AST: "Assists",
-  BLK: "Blocks",
-  STL: "Steals",
+export const LEAGUE_LABEL: Record<League, string> = {
+  NBA: "NBA",
+  PBA: "PBA",
+  FIBA: "FIBA",
 };
 
 /* ---------------- Teams ---------------- */
@@ -67,112 +40,47 @@ export function getTeams(league?: League): Team[] {
   return league ? TEAMS.filter((t) => t.league === league) : TEAMS;
 }
 
-export async function getRoster(teamId: string): Promise<Player[]> {
-  const { playersByTeam } = dataset();
-  const store = await readOverrides();
-  return (playersByTeam.get(teamId) ?? [])
-    .map((p) => withPhoto(p, store))
-    .sort((a, b) => b.ppg - a.ppg);
-}
-
 /* ---------------- Players ---------------- */
-export async function getPlayer(id: string): Promise<Player | undefined> {
-  const { players } = dataset();
-  const store = await readOverrides();
-  const p = players.find((x) => x.id === id);
-  return p ? withPhoto(p, store) : undefined;
+export function getPlayer(id: string): Player | undefined {
+  return PLAYERS_BY_ID[id];
 }
-
-export function getPlayerLog(player: Player) {
-  return genPlayerLog(player, 8);
+export function getRoster(teamId: string): Player[] {
+  return PLAYERS.filter((p) => p.teamId === teamId);
 }
 
 /* ---------------- Games ---------------- */
+function byDateDesc(a: Game, b: Game) {
+  return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
+}
 export function listGames(opts?: { league?: League; limit?: number }): Game[] {
-  const { games } = dataset();
-  let g = games;
+  let g = [...GAMES].sort(byDateDesc);
   if (opts?.league) g = g.filter((x) => x.league === opts.league);
   return opts?.limit ? g.slice(0, opts.limit) : g;
 }
-
 export function getGame(id: string): Game | undefined {
-  return dataset().games.find((g) => g.id === id);
+  return GAMES.find((g) => g.id === id);
 }
-
 export function getLatestGame(league?: League): Game {
   return listGames(league ? { league } : undefined)[0];
 }
 
-export async function getBoxPlayer(playerId: string): Promise<Player | undefined> {
-  return getPlayer(playerId);
+/** Real reported standouts for a game (variable count). */
+export function getGamePerformers(game: Game): GamePerformer[] {
+  return game.performers;
 }
 
-/** Player-of-the-game card data for a game. */
-export async function getPlayerOfGame(game: Game) {
-  const store = await readOverrides();
-  const line = game.box.find((b) => b.playerId === game.playerOfGameId)!;
-  const player = (await getPlayer(game.playerOfGameId))!;
-  const team = getTeam(player.teamId)!;
-  const photoUrl = performerPhoto(store, game.id, "POG", player.id);
-  return { player: { ...player, photoUrl: photoUrl ?? player.photoUrl }, team, line, photoUrl };
-}
-
-/** The 5 statistical leaders (PTS/REB/AST/BLK/STL) within a game. */
-export async function getGamePerformers(game: Game): Promise<PerformerLeader[]> {
-  const store = await readOverrides();
-  const { players } = dataset();
-  const find = (id: string) => players.find((p) => p.id === id)!;
-
-  return CATS.map((category) => {
-    const key = STAT_OF[category];
-    let best = game.box[0];
-    for (const row of game.box) {
-      if ((row[key] as number) > (best[key] as number)) best = row;
-    }
-    const player = find(best.playerId);
-    const team = getTeam(player.teamId)!;
-    const photoUrl = performerPhoto(store, game.id, category, player.id);
-    return {
-      category,
-      player: { ...player, photoUrl: photoUrl ?? player.photoUrl },
-      team,
-      value: best[key] as number,
-      line: best,
-      photoUrl,
-    } satisfies PerformerLeader;
-  });
-}
-
-/* ---------------- Season leaders ---------------- */
-export async function getSeasonLeaders(
-  category: StatCategory,
-  opts?: { league?: League; limit?: number }
-): Promise<SeasonLeader[]> {
-  const { players } = dataset();
-  const store = await readOverrides();
-  const key = AVG_OF[category];
-  let pool = players;
-  if (opts?.league) pool = pool.filter((p) => p.league === opts.league);
-  return [...pool]
-    .sort((a, b) => (b[key] as number) - (a[key] as number))
-    .slice(0, opts?.limit ?? 10)
-    .map((p, i) => ({
-      rank: i + 1,
-      player: withPhoto(p, store),
-      team: getTeam(p.teamId)!,
-      value: p[key] as number,
-    }));
+/** Games a player was a reported standout in (for their profile). */
+export function getPlayerGames(playerId: string): Game[] {
+  return listGames().filter((g) => g.performers.some((p) => p.playerId === playerId));
 }
 
 /* ---------------- Standings ---------------- */
-function streakFor(team: Team): string {
-  // deterministic pseudo-streak from record
-  const n = ((team.wins * 7 + team.losses * 3) % 5) + 1;
-  return team.wins >= team.losses ? `W${n}` : `L${n}`;
+export function getConferences(league: League): string[] {
+  return Array.from(new Set(getTeams(league).map((t) => t.conference)));
 }
 
 export function getStandings(league: League, conference?: string): StandingRow[] {
-  let teams = TEAMS.filter((t) => t.league === league);
+  let teams = getTeams(league);
   if (conference) teams = teams.filter((t) => t.conference === conference);
   const sorted = [...teams].sort(
     (a, b) => b.wins / (b.wins + b.losses) - a.wins / (a.wins + a.losses)
@@ -184,22 +92,25 @@ export function getStandings(league: League, conference?: string): StandingRow[]
     wins: team.wins,
     losses: team.losses,
     pct: team.wins / (team.wins + team.losses),
-    gb: ((top.wins - team.wins) + (team.losses - top.losses)) / 2,
-    streak: streakFor(team),
+    gb: top ? (top.wins - team.wins + (team.losses - top.losses)) / 2 : 0,
   }));
 }
 
-export function getConferences(league: League): string[] {
-  return Array.from(new Set(TEAMS.filter((t) => t.league === league).map((t) => t.conference)));
+/* ---------------- Leaders ---------------- */
+export function getSeasonLeaders(
+  category: StatCategory,
+  opts?: { league?: League; limit?: number }
+): SeasonLeader[] {
+  const rows = rankedLeaders(category, opts?.league);
+  return opts?.limit ? rows.slice(0, opts.limit) : rows;
 }
 
-/* ---------------- Home / misc ---------------- */
+/* ---------------- Misc ---------------- */
 export function getSiteStats() {
-  const { players, games } = dataset();
   return {
+    games: GAMES.length,
+    players: PLAYERS.length,
     teams: TEAMS.length,
-    players: players.length,
-    games: games.length,
-    leagues: new Set(TEAMS.map((t) => t.league)).size,
+    leagues: LEAGUES.length,
   };
 }

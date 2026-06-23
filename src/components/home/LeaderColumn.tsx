@@ -20,30 +20,27 @@ export function LeaderColumn({
         <h3 className="font-display text-xl uppercase tracking-wide">{title}</h3>
       </div>
       <ol className="space-y-1">
-        {leaders.map((l) => (
-          <li key={l.player.id}>
-            <Link
-              href={`/players/${l.player.id}`}
-              className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-surface-2/60"
-            >
+        {leaders.map((l) => {
+          const row = (
+            <div className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-surface-2/60">
               <span className="stat-num w-4 text-sm text-faint">{l.rank}</span>
-              <Avatar
-                name={l.player.name}
-                src={l.player.photoUrl}
-                className="h-9 w-9"
-                rounded="rounded-lg"
-              />
+              <Avatar name={l.name} className="h-9 w-9" rounded="rounded-lg" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-fg">{l.player.name}</p>
-                <p className="text-xs text-faint">{l.team.abbr}</p>
+                <p className="truncate text-sm font-medium text-fg">{l.name}</p>
+                <p className="text-xs text-faint">{l.teamAbbr} · {l.league}</p>
               </div>
               <span className="stat-num font-display text-xl" style={{ color }}>
                 {l.value.toFixed(1)}
                 <span className="ml-1 text-[0.6rem] text-faint">{unit}</span>
               </span>
-            </Link>
-          </li>
-        ))}
+            </div>
+          );
+          return (
+            <li key={`${l.name}-${l.rank}`}>
+              {l.playerId ? <Link href={`/players/${l.playerId}`}>{row}</Link> : row}
+            </li>
+          );
+        })}
       </ol>
     </div>
   );

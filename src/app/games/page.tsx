@@ -12,6 +12,7 @@ const FILTERS: { key: string; label: string }[] = [
   { key: "all", label: "All" },
   { key: "NBA", label: "NBA" },
   { key: "PBA", label: "PBA" },
+  { key: "FIBA", label: "FIBA" },
 ];
 
 export default async function GamesPage({
@@ -20,7 +21,8 @@ export default async function GamesPage({
   searchParams: Promise<{ league?: string }>;
 }) {
   const { league } = await searchParams;
-  const active = league === "NBA" || league === "PBA" ? league : "all";
+  const active =
+    league === "NBA" || league === "PBA" || league === "FIBA" ? league : "all";
 
   const games = listGames(active === "all" ? undefined : { league: active as League });
 
@@ -35,10 +37,11 @@ export default async function GamesPage({
   return (
     <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
       <header className="mb-10">
-        <p className="eyebrow mb-2">Box Scores</p>
+        <p className="eyebrow mb-2">Real Results</p>
         <h1 className="font-display text-5xl uppercase sm:text-6xl">Games</h1>
         <p className="mt-3 max-w-xl text-muted">
-          Every final, with full box scores and a story for each game.
+          Real recent finals from the NBA, PBA and FIBA, each with the story
+          behind it and a link to the source.
         </p>
       </header>
 

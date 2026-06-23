@@ -1,15 +1,12 @@
 /**
- * Courtside data model.
+ * Courtside data model — REAL, sourced data.
  *
- * These types describe the shape the public site consumes. They are
- * intentionally close to what a box-score / stats API (like Courtside Live)
- * would return, so swapping the sample-data source in `index.ts` for live
- * `fetch()` calls is a localized change.
+ * Every game, team, player and stat in this app is drawn from public sources
+ * (NBA.com / Basketball-Reference, PBA.ph / Wikipedia, FIBA.basketball) and
+ * each record carries a `source` URL for traceability. No fabricated games.
  */
 
-export type League = "NBA" | "PBA";
-
-export type Position = "PG" | "SG" | "SF" | "PF" | "C";
+export type League = "NBA" | "PBA" | "FIBA";
 
 export type StatCategory = "PTS" | "REB" | "AST" | "BLK" | "STL";
 
@@ -19,11 +16,21 @@ export interface Team {
   city: string;
   name: string;
   abbr: string;
-  conference: string; // "East" | "West" for NBA, "PBA" for PBA
+  conference: string; // "Eastern"/"Western" (NBA), "PBA" (PBA), "Group A"/"Group B" (FIBA)
   primary: string;
   secondary: string;
   wins: number;
   losses: number;
+  source?: string;
+}
+
+export interface PlayerStats {
+  ppg?: number;
+  rpg?: number;
+  apg?: number;
+  bpg?: number;
+  spg?: number;
+  fgPct?: number;
 }
 
 export interface Player {
@@ -31,88 +38,38 @@ export interface Player {
   teamId: string;
   league: League;
   name: string;
-  number: number;
-  position: Position;
-  height: string;
-  age: number;
+  number?: number;
+  position?: string;
   photoUrl: string | null;
-  // season per-game averages
-  ppg: number;
-  rpg: number;
-  apg: number;
-  bpg: number;
-  spg: number;
-  mpg: number;
-  fgPct: number; // 0-100
-  tpPct: number;
-  ftPct: number;
-  gamesPlayed: number;
+  stats: PlayerStats;
+  statContext: string; // e.g. "2026 NBA Finals" or "2025–26 season"
+  source?: string;
 }
 
-export interface StatLine {
-  min: number;
-  pts: number;
-  reb: number;
-  ast: number;
-  blk: number;
-  stl: number;
-  tov: number;
-  pf: number;
-  fgm: number;
-  fga: number;
-  tpm: number;
-  tpa: number;
-  ftm: number;
-  fta: number;
-}
-
-export interface BoxEntry extends StatLine {
-  playerId: string;
-  starter: boolean;
-}
-
-export interface Quarters {
-  q1: number;
-  q2: number;
-  q3: number;
-  q4: number;
-  ot: number;
+/** A real, reported standout from a single game. */
+export interface GamePerformer {
+  playerId?: string;
+  name: string;
+  teamAbbr: string;
+  category: StatCategory;
+  value: number;
+  detail?: string; // e.g. "45 PTS" or "30 pts · 8 ast"
 }
 
 export interface Game {
   id: string;
   league: League;
-  date: string; // ISO (yyyy-mm-dd)
+  date: string; // ISO yyyy-mm-dd
   homeTeamId: string;
   awayTeamId: string;
   homeScore: number;
   awayScore: number;
-  homeLine: Quarters;
-  awayLine: Quarters;
   venue: string;
-  attendance: number;
-  box: BoxEntry[]; // both teams
-  playerOfGameId: string;
+  series?: string; // e.g. "NBA Finals · Game 5"
   headline: string;
   recap: string;
-}
-
-/** A category leader within a single game (used on the recap pages). */
-export interface PerformerLeader {
-  category: StatCategory;
-  player: Player;
-  team: Team;
-  value: number;
-  line: BoxEntry;
-  photoUrl: string | null;
-}
-
-/** A season-long leaderboard entry. */
-export interface SeasonLeader {
-  rank: number;
-  player: Player;
-  team: Team;
-  value: number;
+  source: string;
+  performers: GamePerformer[];
 }
 
 export interface StandingRow {
@@ -122,5 +79,16 @@ export interface StandingRow {
   losses: number;
   pct: number;
   gb: number;
-  streak: string;
+}
+
+export interface SeasonLeader {
+  rank: number;
+  name: string;
+  teamAbbr: string;
+  league: League;
+  category: StatCategory;
+  value: number;
+  context: string;
+  playerId?: string;
+  source?: string;
 }

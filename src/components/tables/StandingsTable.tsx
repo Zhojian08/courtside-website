@@ -20,8 +20,7 @@ export function StandingsTable({ rows, title }: { rows: StandingRow[]; title?: s
               <th className="px-3 py-3 text-center font-semibold">W</th>
               <th className="px-3 py-3 text-center font-semibold">L</th>
               <th className="px-3 py-3 text-center font-semibold">PCT</th>
-              <th className="px-3 py-3 text-center font-semibold">GB</th>
-              <th className="px-4 py-3 text-center font-semibold">STRK</th>
+              <th className="px-4 py-3 text-center font-semibold">GB</th>
             </tr>
           </thead>
           <tbody>
@@ -49,17 +48,8 @@ export function StandingsTable({ rows, title }: { rows: StandingRow[]; title?: s
                 <td className="stat-num px-3 py-3 text-center text-fg">{r.wins}</td>
                 <td className="stat-num px-3 py-3 text-center text-muted">{r.losses}</td>
                 <td className="stat-num px-3 py-3 text-center text-fg">{pct3(r.pct)}</td>
-                <td className="stat-num px-3 py-3 text-center text-muted">
+                <td className="stat-num px-4 py-3 text-center text-muted">
                   {r.gb === 0 ? "—" : r.gb.toFixed(1)}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <span
-                    className={`stat-num text-xs font-bold ${
-                      r.streak.startsWith("W") ? "text-good" : "text-bad"
-                    }`}
-                  >
-                    {r.streak}
-                  </span>
                 </td>
               </tr>
             ))}

@@ -5,9 +5,11 @@ import { Reveal } from "@/components/ui/Reveal";
 export const metadata = { title: "Standings" };
 
 export default function StandingsPage() {
-  const east = getStandings("NBA", "East");
-  const west = getStandings("NBA", "West");
+  const east = getStandings("NBA", "Eastern");
+  const west = getStandings("NBA", "Western");
   const pba = getStandings("PBA");
+  const groupA = getStandings("FIBA", "Group A");
+  const groupB = getStandings("FIBA", "Group B");
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
@@ -15,13 +17,14 @@ export default function StandingsPage() {
         <p className="eyebrow mb-2">The Race</p>
         <h1 className="font-display text-5xl uppercase sm:text-6xl">Standings</h1>
         <p className="mt-3 max-w-xl text-muted">
-          Win-loss records, games back and current streaks across every league.
+          Real records from the latest NBA season, the PBA Commissioner&apos;s Cup,
+          and the FIBA U18 AmeriCup.
         </p>
       </header>
 
       <div className="space-y-12">
         <section>
-          <h2 className="font-display mb-4 text-2xl uppercase text-muted">NBA</h2>
+          <h2 className="font-display mb-4 text-2xl uppercase text-muted">NBA · 2025–26</h2>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Reveal>
               <StandingsTable rows={east} title="Eastern Conference" />
@@ -33,10 +36,22 @@ export default function StandingsPage() {
         </section>
 
         <section>
-          <h2 className="font-display mb-4 text-2xl uppercase text-muted">PBA</h2>
+          <h2 className="font-display mb-4 text-2xl uppercase text-muted">PBA · Commissioner&apos;s Cup</h2>
           <Reveal>
-            <StandingsTable rows={pba} title="Philippine Basketball Association" />
+            <StandingsTable rows={pba} title="Elimination Round" />
           </Reveal>
+        </section>
+
+        <section>
+          <h2 className="font-display mb-4 text-2xl uppercase text-muted">FIBA · U18 AmeriCup 2026</h2>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <Reveal>
+              <StandingsTable rows={groupA} title="Group A" />
+            </Reveal>
+            <Reveal delay={0.1}>
+              <StandingsTable rows={groupB} title="Group B" />
+            </Reveal>
+          </div>
         </section>
       </div>
     </div>
