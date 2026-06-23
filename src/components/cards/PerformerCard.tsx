@@ -15,6 +15,8 @@ export function PerformerCard({ leader }: { leader: PerformerLeader }) {
           name={leader.player.name}
           src={leader.photoUrl ?? leader.player.photoUrl}
           rounded="rounded-none"
+          align="top"
+          initialsClassName="text-[clamp(1.1rem,26cqw,2.75rem)]"
           className="h-full w-full transition-transform duration-700 group-hover:scale-105"
         />
         {/* gradient scrim */}
@@ -31,7 +33,7 @@ export function PerformerCard({ leader }: { leader: PerformerLeader }) {
         {/* value */}
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <div className="flex items-end gap-2">
-            <span className="font-display text-5xl leading-none" style={{ color: meta.color }}>
+            <span className="font-display text-4xl leading-none sm:text-5xl" style={{ color: meta.color }}>
               {leader.value}
             </span>
             <span className="mb-1 text-xs font-semibold text-muted">{meta.unit}</span>

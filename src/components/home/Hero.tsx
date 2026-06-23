@@ -46,7 +46,7 @@ export function Hero({
           transition={{ duration: 0.6, ease }}
           className="eyebrow"
         >
-          United Arab Emirates · Your Basketball Statistics
+          United Arab Emirates · Basketball Statistics
         </motion.p>
 
         <motion.h1

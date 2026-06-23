@@ -16,11 +16,15 @@ export function Avatar({
   src,
   className,
   rounded = "rounded-2xl",
+  align = "center",
+  initialsClassName,
 }: {
   name: string;
   src?: string | null;
   className?: string;
   rounded?: string;
+  align?: "center" | "top";
+  initialsClassName?: string;
 }) {
   if (src) {
     return (
@@ -36,7 +40,8 @@ export function Avatar({
   return (
     <div
       className={clsx(
-        "grid place-items-center font-display text-fg/90 select-none",
+        "flex justify-center font-display text-fg/90 select-none",
+        align === "top" ? "items-start" : "items-center",
         rounded,
         className
       )}
@@ -46,7 +51,14 @@ export function Avatar({
       }}
       aria-label={name}
     >
-      <span className="text-[clamp(0.9rem,42cqw,3rem)]">{initials(name)}</span>
+      <span
+        className={clsx(
+          initialsClassName ?? "text-[clamp(0.9rem,42cqw,3rem)]",
+          align === "top" && "mt-[16cqw]"
+        )}
+      >
+        {initials(name)}
+      </span>
     </div>
   );
 }
