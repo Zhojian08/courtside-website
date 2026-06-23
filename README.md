@@ -1,6 +1,6 @@
-# 🏀 WeXmE — United Arab Emirates
+# 🏀 WeXmE
 
-Pro-grade coverage for UAE amateur basketball — box scores, standings, leaderboards,
+Pro-grade coverage for basketball leagues of all ages — box scores, standings, leaderboards,
 player graphs and cinematic game-night recaps. Built to be powered by
 [Courtside Live](https://courtside-live.onrender.com).
 

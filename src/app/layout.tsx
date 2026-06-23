@@ -28,11 +28,11 @@ const exo2 = Exo_2({
 
 export const metadata: Metadata = {
   title: {
-    default: "WeXmE — UAE Basketball Stats",
+    default: "WeXmE — Basketball Stats",
     template: "%s · WeXmE",
   },
   description:
-    "WeXmE — United Arab Emirates. Live box scores, standings, leaderboards and game recaps for basketball leagues of all ages.",
+    "WeXmE. Live box scores, standings, leaderboards and game recaps for basketball leagues of all ages.",
 };
 
 export default function RootLayout({

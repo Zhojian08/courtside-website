@@ -11,7 +11,7 @@ export function SiteFooter() {
               <BrandLogo src="/wexme-mark.png" imgClassName="h-16 w-auto" fallbackClassName="text-3xl" />
             </Link>
             <p className="mt-6 text-sm leading-relaxed text-muted">
-              Pro-grade coverage for UAE basketball leagues of all ages, box scores, standings,
+              Pro-grade coverage for basketball leagues of all ages, box scores, standings,
               leaderboards and game recaps.
             </p>
           </div>
@@ -30,7 +30,7 @@ export function SiteFooter() {
 
         <div className="section-rule mt-12" />
         <div className="mt-6 text-xs text-faint">
-          <p>© {new Date().getFullYear()} WeXmE · United Arab Emirates.</p>
+          <p>© {new Date().getFullYear()} WeXmE.</p>
         </div>
       </div>
     </footer>
