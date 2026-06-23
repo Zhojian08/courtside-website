@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { WexmeLogo } from "@/components/brand/WexmeLogo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export function SiteFooter() {
   return (
@@ -8,16 +8,15 @@ export function SiteFooter() {
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
             <Link href="/" className="inline-flex" aria-label="WeXmE home">
-              <WexmeLogo className="text-3xl" withTagline />
+              <BrandLogo imgClassName="h-20 w-auto" fallbackClassName="text-3xl" withTagline />
             </Link>
             <p className="mt-6 text-sm leading-relaxed text-muted">
-              Pro-grade coverage for UAE amateur basketball. Box scores, standings,
-              leaderboards and game-night stories — powered by{" "}
-              <span className="text-fg">Courtside Live</span>.
+              Pro-grade coverage for UAE amateur basketball — box scores, standings,
+              leaderboards and game-night stories.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
+          <div className="flex gap-10">
             <FooterCol
               title="Explore"
               links={[
@@ -26,25 +25,12 @@ export function SiteFooter() {
                 { href: "/leaders", label: "Leaders" },
               ]}
             />
-            <FooterCol
-              title="For staff"
-              links={[
-                { href: "/statistician", label: "Statistician Upload" },
-              ]}
-            />
-            <FooterCol
-              title="Source"
-              links={[
-                { href: "https://courtside-live.onrender.com", label: "Courtside Live", external: true },
-              ]}
-            />
           </div>
         </div>
 
         <div className="section-rule mt-12" />
-        <div className="mt-6 flex flex-col gap-2 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} WeXmE · United Arab Emirates. Sample data for demonstration.</p>
-          <p>Built with Next.js · Data adapter ready for the Courtside Live API.</p>
+        <div className="mt-6 text-xs text-faint">
+          <p>© {new Date().getFullYear()} WeXmE · United Arab Emirates.</p>
         </div>
       </div>
     </footer>

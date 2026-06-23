@@ -32,24 +32,8 @@ npm run build && npm start
 | `/leaders` | Season leaderboards (PTS/REB/AST/BLK/STL) with bar charts |
 | `/players/[id]` | Player profile — averages, shooting splits, trend chart, radar, game log |
 | `/teams/[id]` | Team page — roster table and recent games |
-| `/statistician` | **Upload desk** — pick a game, upload a photo for each performer; it publishes to the site instantly |
 
 Tech: Next.js (App Router) · TypeScript · Tailwind v4 · Framer Motion · Recharts.
-
-## The statistician upload
-
-1. Open `/statistician` and enter the passcode (demo: `courtside`, configurable
-   via `COURTSIDE_UPLOAD_CODE`).
-2. Pick a game, then choose a photo for the player of the game and the leaders in
-   points / rebounds / assists / blocks / steals.
-3. On upload the image is saved to `public/uploads/`, recorded in
-   `.data/overrides.json`, and immediately shown on the public game page,
-   performer cards and that player's profile.
-
-> Note: on hosts with an ephemeral filesystem (e.g. Render free tier) uploaded
-> files don't persist across restarts. For production, swap the write in
-> `src/app/api/upload/route.ts` for object storage (S3/R2/Cloudinary) — the rest
-> of the flow stays the same.
 
 ## Going live with Courtside Live
 

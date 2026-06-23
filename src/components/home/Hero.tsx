@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, ChevronDown, Upload } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import type { Game, Team } from "@/lib/courtside/types";
 import { TeamCrest } from "@/components/ui/TeamCrest";
 import { LeagueTag } from "@/components/ui/SectionHeading";
@@ -22,7 +22,6 @@ export function Hero({
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [0, 160]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const winScore = Math.max(game.homeScore, game.awayScore);
   const winner = game.homeScore > game.awayScore ? home : away;
 
   const ease = [0.2, 0.7, 0.2, 1] as const;
@@ -85,13 +84,6 @@ export function Hero({
             Explore the games
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
-          <Link
-            href="/statistician"
-            className="inline-flex items-center gap-2 rounded-xl border border-line px-5 py-3 font-semibold text-fg transition-colors hover:border-accent hover:text-accent"
-          >
-            <Upload className="h-4 w-4" />
-            Statistician upload
-          </Link>
         </motion.div>
 
         {/* featured latest result */}
@@ -116,7 +108,6 @@ export function Hero({
             <p className="mt-4 text-sm text-muted">{game.headline}</p>
             <p className="mt-1 text-xs text-faint">{formatDateLong(game.date)}</p>
           </Link>
-          <p className="mt-3 text-center font-display text-7xl text-white/5">{winScore}</p>
         </motion.div>
       </div>
 

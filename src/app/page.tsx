@@ -117,37 +117,6 @@ export default async function HomePage() {
           </Reveal>
         </section>
 
-        {/* CTA */}
-        <section className="py-16">
-          <Reveal>
-            <div className="card noise relative overflow-hidden p-8 text-center sm:p-14">
-              <div
-                className="pointer-events-none absolute inset-0 opacity-40"
-                style={{
-                  background:
-                    "radial-gradient(60% 80% at 50% 0%, rgba(47,125,255,0.28), transparent 60%)",
-                }}
-              />
-              <div className="relative">
-                <p className="eyebrow mb-3">For statisticians</p>
-                <h2 className="font-display mx-auto max-w-2xl text-4xl uppercase sm:text-5xl">
-                  Shot the photos? Post them in seconds.
-                </h2>
-                <p className="mx-auto mt-4 max-w-xl text-muted">
-                  Upload a headshot for each game&apos;s top performers — points,
-                  rebounds, assists, blocks, steals and the player of the game.
-                  They publish to the site instantly.
-                </p>
-                <a
-                  href="/statistician"
-                  className="mt-7 inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 font-semibold text-black transition-colors hover:bg-accent-2"
-                >
-                  Open the upload desk
-                </a>
-              </div>
-            </div>
-          </Reveal>
-        </section>
       </div>
     </>
   );
