@@ -8,10 +8,10 @@ export function SiteFooter() {
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
             <Link href="/" className="inline-flex" aria-label="WeXmE home">
-              <BrandLogo src="/wexme-logo.png" imgClassName="h-20 w-auto" fallbackClassName="text-3xl" withTagline />
+              <BrandLogo src="/wexme-mark.png" imgClassName="h-16 w-auto" fallbackClassName="text-3xl" />
             </Link>
             <p className="mt-6 text-sm leading-relaxed text-muted">
-              Pro-grade coverage for UAE amateur basketball — box scores, standings,
+              Pro-grade coverage for UAE basketball leagues of all ages — box scores, standings,
               leaderboards and game-night stories.
             </p>
           </div>

@@ -46,14 +46,14 @@ export function Hero({
           transition={{ duration: 0.6, ease }}
           className="eyebrow"
         >
-          United Arab Emirates · Amateur Hoops
+          United Arab Emirates · Your Basketball Statistics
         </motion.p>
 
         <motion.h1
           initial={{ opacity: 0, y: 26 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.05, ease }}
-          className="font-display mt-4 text-[clamp(3rem,10vw,9rem)] uppercase leading-[0.82]"
+          className="font-display mt-4 text-[clamp(3rem,10vw,9rem)] uppercase leading-[1.05]"
         >
           Every bucket.
           <br />
@@ -66,8 +66,8 @@ export function Hero({
           transition={{ duration: 0.7, delay: 0.15, ease }}
           className="mt-6 max-w-xl text-lg leading-relaxed text-muted"
         >
-          Box scores, standings, leaderboards and game-night stories for amateur
-          leagues — every stat straight from{" "}
+          Box scores, standings, leaderboards and game-night stories for
+          basketball leagues of all ages — every stat straight from{" "}
           <span className="text-fg">Courtside Live</span>.
         </motion.p>
 
