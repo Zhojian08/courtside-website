@@ -57,7 +57,7 @@ export function Hero({
         >
           Every bucket.
           <br />
-          <span className="text-gradient">Every night.</span>
+          <span className="text-gradient">Every Games.</span>
         </motion.h1>
 
         <motion.p
@@ -115,7 +115,7 @@ export function Hero({
         style={{ opacity }}
         className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center"
       >
-        <p className="eyebrow mb-1.5 text-faint">Scroll to unfold the night</p>
+        <p className="eyebrow mb-1.5 text-faint">Scroll to unfold the game statistics</p>
         <ChevronDown className="mx-auto h-5 w-5 animate-bounce text-faint" />
       </motion.div>
     </section>
