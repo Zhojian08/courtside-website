@@ -56,7 +56,7 @@ export default async function HomePage() {
           <SectionHeading
             index="01"
             eyebrow={`${latestAway.abbr} @ ${latestHome.abbr} · Top Performers`}
-            title="Stars of the Night"
+            title="Stars of the Game"
             href={`/games/${latest.id}`}
             hrefLabel="Full recap"
           />

@@ -12,7 +12,7 @@ export function SiteFooter() {
             </Link>
             <p className="mt-6 text-sm leading-relaxed text-muted">
               Pro-grade coverage for UAE basketball leagues of all ages, box scores, standings,
-              leaderboards and game-night stories.
+              leaderboards and game recaps.
             </p>
           </div>
 

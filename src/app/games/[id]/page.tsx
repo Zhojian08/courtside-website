@@ -162,7 +162,7 @@ export default async function GameRecapPage({ params }: { params: Promise<{ id: 
         {/* STARS / PERFORMERS */}
         <section>
           <Reveal>
-            <h2 className="font-display mb-6 text-3xl uppercase sm:text-4xl">Stars of the Night</h2>
+            <h2 className="font-display mb-6 text-3xl uppercase sm:text-4xl">Stars of the Game</h2>
           </Reveal>
           <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {performers.map((p) => (

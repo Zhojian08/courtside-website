@@ -38,7 +38,7 @@ export default async function GamesPage({
         <p className="eyebrow mb-2">Box Scores</p>
         <h1 className="font-display text-5xl uppercase sm:text-6xl">Games</h1>
         <p className="mt-3 max-w-xl text-muted">
-          Every final, with full box scores and a story for each night.
+          Every final, with full box scores and a story for each game.
         </p>
       </header>
 

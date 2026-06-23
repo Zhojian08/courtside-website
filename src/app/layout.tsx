@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     template: "%s · WeXmE",
   },
   description:
-    "WeXmE — United Arab Emirates. Box scores, standings, leaderboards and game-night stories for amateur basketball, powered by Courtside Live.",
+    "WeXmE — United Arab Emirates. Live box scores, standings, leaderboards and game recaps for basketball leagues of all ages.",
 };
 
 export default function RootLayout({

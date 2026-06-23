@@ -66,8 +66,9 @@ export function Hero({
           transition={{ duration: 0.7, delay: 0.15, ease }}
           className="mt-6 max-w-xl text-lg leading-relaxed text-muted"
         >
-          Box scores, standings, leaderboards and game-night stories for
-          basketball leagues of all ages, every stat straight from{" "}
+          Every bucket, board and buzzer-beater, captured. Dive into live box
+          scores, standings, leaderboards and player breakdowns for basketball
+          leagues of all ages, only on{" "}
           <span className="text-fg">WeXmE</span>.
         </motion.p>
 
