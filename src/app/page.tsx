@@ -84,8 +84,8 @@ export default async function HomePage() {
         <section className="py-12">
           <SectionHeading eyebrow="Who's Cooking" title="Season Leaders" href="/leaders" />
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <LeaderColumn title="Points" color="#ff6a1a" unit="PPG" leaders={pts} />
-            <LeaderColumn title="Rebounds" color="#3d7bff" unit="RPG" leaders={reb} />
+            <LeaderColumn title="Points" color="#2f7dff" unit="PPG" leaders={pts} />
+            <LeaderColumn title="Rebounds" color="#22c3e6" unit="RPG" leaders={reb} />
             <LeaderColumn title="Assists" color="#2fd27a" unit="APG" leaders={ast} />
           </div>
         </section>
@@ -125,7 +125,7 @@ export default async function HomePage() {
                 className="pointer-events-none absolute inset-0 opacity-40"
                 style={{
                   background:
-                    "radial-gradient(60% 80% at 50% 0%, rgba(255,106,26,0.25), transparent 60%)",
+                    "radial-gradient(60% 80% at 50% 0%, rgba(47,125,255,0.28), transparent 60%)",
                 }}
               />
               <div className="relative">

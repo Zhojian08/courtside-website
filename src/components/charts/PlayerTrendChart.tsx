@@ -25,8 +25,8 @@ export function PlayerTrendChart({ data }: { data: TrendPoint[] }) {
         <ComposedChart data={data} margin={{ top: 10, right: 8, bottom: 0, left: -18 }}>
           <defs>
             <linearGradient id="ptsFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#ff6a1a" stopOpacity={0.5} />
-              <stop offset="100%" stopColor="#ff6a1a" stopOpacity={0} />
+              <stop offset="0%" stopColor="#2f7dff" stopOpacity={0.5} />
+              <stop offset="100%" stopColor="#2f7dff" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid stroke="#222634" vertical={false} />
@@ -42,8 +42,8 @@ export function PlayerTrendChart({ data }: { data: TrendPoint[] }) {
             }}
             labelStyle={{ color: "#99a0b4" }}
           />
-          <Area type="monotone" dataKey="pts" name="PTS" stroke="#ff6a1a" strokeWidth={2.5} fill="url(#ptsFill)" />
-          <Line type="monotone" dataKey="reb" name="REB" stroke="#3d7bff" strokeWidth={2} dot={false} />
+          <Area type="monotone" dataKey="pts" name="PTS" stroke="#2f7dff" strokeWidth={2.5} fill="url(#ptsFill)" />
+          <Line type="monotone" dataKey="reb" name="REB" stroke="#22c3e6" strokeWidth={2} dot={false} />
           <Line type="monotone" dataKey="ast" name="AST" stroke="#2fd27a" strokeWidth={2} dot={false} />
         </ComposedChart>
       </ResponsiveContainer>

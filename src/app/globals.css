@@ -1,21 +1,22 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ */
-/*  Design tokens — Courtside "game night" theme                       */
+/*  Design tokens — WeXmE "chrome & electric blue" theme               */
 /* ------------------------------------------------------------------ */
 @theme {
-  --color-ink: #06070b;
-  --color-ink-2: #0b0d14;
-  --color-surface: #11131c;
-  --color-surface-2: #181b27;
-  --color-line: #242838;
-  --color-fg: #f3f5fa;
-  --color-muted: #99a0b4;
-  --color-faint: #5c6377;
+  --color-ink: #050608;
+  --color-ink-2: #0a0c11;
+  --color-surface: #10131b;
+  --color-surface-2: #171b26;
+  --color-line: #222838;
+  --color-fg: #f3f6fc;
+  --color-muted: #98a1b8;
+  --color-faint: #5a6379;
 
-  --color-accent: #ff6a1a;   /* basketball orange  */
-  --color-accent-2: #ffb020; /* hardwood gold      */
-  --color-accent-3: #3d7bff; /* electric blue      */
+  --color-accent: #2f7dff;   /* electric blue (WeXmE X) */
+  --color-accent-2: #73a9ff; /* lighter blue highlight   */
+  --color-accent-3: #0b46d8; /* deep royal blue          */
+  --color-silver: #cdd6e8;   /* chrome silver            */
   --color-good: #2fd27a;
   --color-bad: #ff4d4d;
 
@@ -25,6 +26,7 @@
 @theme inline {
   --font-display: var(--font-anton);
   --font-sans: var(--font-inter);
+  --font-wexme: var(--font-exo2);
 }
 
 /* ------------------------------------------------------------------ */
@@ -45,28 +47,28 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04";
   overflow-x: hidden;
-  /* layered "spotlight on a dark court" backdrop */
+  /* layered "spotlight on chrome" backdrop */
   background-image:
-    radial-gradient(120% 80% at 50% -10%, rgba(255, 106, 26, 0.18), transparent 55%),
-    radial-gradient(90% 60% at 85% 10%, rgba(61, 123, 255, 0.10), transparent 60%),
-    linear-gradient(180deg, #06070b 0%, #06070b 100%);
+    radial-gradient(120% 80% at 50% -10%, rgba(47, 125, 255, 0.20), transparent 55%),
+    radial-gradient(90% 60% at 85% 8%, rgba(190, 205, 235, 0.06), transparent 60%),
+    linear-gradient(180deg, #050608 0%, #050608 100%);
   background-attachment: fixed;
 }
 
 ::selection {
   background: var(--color-accent);
-  color: #0a0a0a;
+  color: #ffffff;
 }
 
 /* scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--color-ink); }
 ::-webkit-scrollbar-thumb {
-  background: #2a2f40;
+  background: #2a3142;
   border-radius: 99px;
   border: 2px solid var(--color-ink);
 }
-::-webkit-scrollbar-thumb:hover { background: #3a4256; }
+::-webkit-scrollbar-thumb:hover { background: #3a455c; }
 
 /* ------------------------------------------------------------------ */
 /*  Typography helpers                                                 */
@@ -93,17 +95,59 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(100deg, #fff 0%, #ffd9b8 40%, var(--color-accent) 100%);
+  background: linear-gradient(100deg, #ffffff 0%, #d6deec 42%, var(--color-accent) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 /* ------------------------------------------------------------------ */
+/*  WeXmE wordmark                                                     */
+/* ------------------------------------------------------------------ */
+.wexme-wordmark {
+  font-family: var(--font-wexme), system-ui, sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: baseline;
+  line-height: 1;
+  user-select: none;
+}
+.wexme-metal {
+  background: linear-gradient(180deg, #ffffff 0%, #eaeff7 36%, #9aa4b8 56%, #ffffff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.wexme-blade {
+  background: linear-gradient(180deg, #a6d2ff 0%, #2f7dff 48%, #0b46d8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  font-size: 1.14em;
+  margin: 0 -0.01em;
+  filter: drop-shadow(0 0 10px rgba(47, 125, 255, 0.55));
+}
+.wexme-tagline {
+  font-family: var(--font-sans), sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 0.26em;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  margin-top: 0.5em;
+  padding-left: 0.2em;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Surfaces                                                           */
 /* ------------------------------------------------------------------ */
 .card {
-  background: linear-gradient(180deg, rgba(24, 27, 39, 0.9), rgba(17, 19, 28, 0.9));
+  background: linear-gradient(180deg, rgba(23, 27, 38, 0.9), rgba(16, 19, 27, 0.9));
   border: 1px solid var(--color-line);
   border-radius: var(--radius-card);
 }
@@ -114,12 +158,12 @@ body {
 }
 .card-hover:hover {
   transform: translateY(-4px);
-  border-color: rgba(255, 106, 26, 0.5);
-  box-shadow: 0 18px 50px -20px rgba(255, 106, 26, 0.4);
+  border-color: rgba(47, 125, 255, 0.55);
+  box-shadow: 0 18px 50px -20px rgba(47, 125, 255, 0.45);
 }
 
 .glass {
-  background: rgba(11, 13, 20, 0.6);
+  background: rgba(10, 12, 17, 0.6);
   backdrop-filter: blur(14px) saturate(140%);
   -webkit-backdrop-filter: blur(14px) saturate(140%);
 }
@@ -129,8 +173,8 @@ body {
 }
 
 .glow-accent {
-  box-shadow: 0 0 0 1px rgba(255, 106, 26, 0.35),
-    0 20px 60px -25px rgba(255, 106, 26, 0.7);
+  box-shadow: 0 0 0 1px rgba(47, 125, 255, 0.35),
+    0 20px 60px -25px rgba(47, 125, 255, 0.7);
 }
 
 /* chip / pill */
@@ -147,7 +191,7 @@ body {
   letter-spacing: 0.04em;
 }
 
-/* faint hardwood line texture for hero / sections */
+/* faint line texture for hero / sections */
 .court-lines {
   background-image:
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 64px);
@@ -199,9 +243,9 @@ body {
 .animate-floaty { animation: floaty 6s ease-in-out infinite; }
 
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(255, 106, 26, 0.45); }
-  70% { box-shadow: 0 0 0 16px rgba(255, 106, 26, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 106, 26, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(47, 125, 255, 0.45); }
+  70% { box-shadow: 0 0 0 16px rgba(47, 125, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(47, 125, 255, 0); }
 }
 .pulse-ring { animation: pulse-ring 2.4s infinite; }
 

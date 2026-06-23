@@ -40,8 +40,8 @@ export function LeagueTag({ league }: { league: string }) {
       className="chip"
       style={{
         borderColor:
-          league === "PBA" ? "rgba(61,123,255,0.4)" : "rgba(255,106,26,0.4)",
-        color: league === "PBA" ? "#84a9ff" : "#ffb98c",
+          league === "PBA" ? "rgba(34,195,230,0.45)" : "rgba(47,125,255,0.45)",
+        color: league === "PBA" ? "#7fe0f0" : "#9ec4ff",
       }}
     >
       {league}

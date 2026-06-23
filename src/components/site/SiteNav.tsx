@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Menu, X, Upload } from "lucide-react";
 import { clsx } from "clsx";
-import { BallMark } from "@/components/brand/BallMark";
+import { WexmeLogo } from "@/components/brand/WexmeLogo";
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -39,11 +39,8 @@ export function SiteNav() {
       )}
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="group flex items-center gap-2.5">
-          <BallMark className="h-8 w-8 transition-transform duration-500 group-hover:rotate-180" />
-          <span className="font-display text-2xl tracking-wide">
-            COURT<span className="text-accent">SIDE</span>
-          </span>
+        <Link href="/" className="flex items-center" aria-label="WeXmE home">
+          <WexmeLogo className="text-[1.6rem]" />
         </Link>
 
         {/* desktop */}

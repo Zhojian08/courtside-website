@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Anton, Inter } from "next/font/google";
+import { Anton, Inter, Exo_2 } from "next/font/google";
 import "./globals.css";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
@@ -17,13 +17,21 @@ const inter = Inter({
   display: "swap",
 });
 
+const exo2 = Exo_2({
+  subsets: ["latin"],
+  weight: ["700", "800"],
+  style: ["italic", "normal"],
+  variable: "--font-exo2",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: {
-    default: "COURTSIDE — Amateur Hoops, Pro Coverage",
-    template: "%s · COURTSIDE",
+    default: "WeXmE — UAE Basketball Stats",
+    template: "%s · WeXmE",
   },
   description:
-    "Box scores, standings, leaderboards and game-night stories for amateur basketball leagues — powered by Courtside Live.",
+    "WeXmE — United Arab Emirates. Box scores, standings, leaderboards and game-night stories for amateur basketball, powered by Courtside Live.",
 };
 
 export default function RootLayout({
@@ -32,7 +40,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${anton.variable} ${inter.variable} h-full antialiased`}
+      className={`${anton.variable} ${inter.variable} ${exo2.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ink text-fg">
         <SiteNav />

@@ -9,8 +9,8 @@ export const metadata = { title: "Leaders" };
 export const dynamic = "force-dynamic";
 
 const CATS: { key: StatCategory; title: string; unit: string; color: string }[] = [
-  { key: "PTS", title: "Points", unit: " PPG", color: "#ff6a1a" },
-  { key: "REB", title: "Rebounds", unit: " RPG", color: "#3d7bff" },
+  { key: "PTS", title: "Points", unit: " PPG", color: "#2f7dff" },
+  { key: "REB", title: "Rebounds", unit: " RPG", color: "#22c3e6" },
   { key: "AST", title: "Assists", unit: " APG", color: "#2fd27a" },
   { key: "BLK", title: "Blocks", unit: " BPG", color: "#a472ff" },
   { key: "STL", title: "Steals", unit: " SPG", color: "#ff5d8f" },

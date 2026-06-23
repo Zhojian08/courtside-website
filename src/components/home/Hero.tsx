@@ -47,7 +47,7 @@ export function Hero({
           transition={{ duration: 0.6, ease }}
           className="eyebrow"
         >
-          Amateur Hoops · Pro Coverage
+          United Arab Emirates · Amateur Hoops
         </motion.p>
 
         <motion.h1

@@ -37,7 +37,7 @@ export function LeaderBars({ data, unit = "" }: { data: LeaderBar[]; unit?: stri
           />
           <Bar dataKey="value" radius={[0, 8, 8, 0]} background={{ fill: "#181b27", radius: 8 }}>
             {data.map((d, i) => (
-              <Cell key={i} fill={d.highlight ? "#ff6a1a" : "#3a4256"} />
+              <Cell key={i} fill={d.highlight ? "#2f7dff" : "#3a4256"} />
             ))}
             <LabelList
               dataKey="value"

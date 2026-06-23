@@ -129,8 +129,8 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
               <h2 className="font-display mb-4 text-2xl uppercase">Last 8 Games</h2>
               <PlayerTrendChart data={trend} />
               <div className="mt-3 flex gap-5 text-xs text-muted">
-                <Legend color="#ff6a1a" label="PTS" />
-                <Legend color="#3d7bff" label="REB" />
+                <Legend color="#2f7dff" label="PTS" />
+                <Legend color="#22c3e6" label="REB" />
                 <Legend color="#2fd27a" label="AST" />
               </div>
             </div>

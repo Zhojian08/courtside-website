@@ -7,8 +7,8 @@ export const CATEGORY_META: Record<
   { label: string; short: string; color: string; unit: string }
 > = {
   POG: { label: "Player of the Game", short: "MVP", color: "#ffb020", unit: "" },
-  PTS: { label: "Top Scorer", short: "PTS", color: "#ff6a1a", unit: "PTS" },
-  REB: { label: "Rebounds", short: "REB", color: "#3d7bff", unit: "REB" },
+  PTS: { label: "Top Scorer", short: "PTS", color: "#2f7dff", unit: "PTS" },
+  REB: { label: "Rebounds", short: "REB", color: "#22c3e6", unit: "REB" },
   AST: { label: "Assists", short: "AST", color: "#2fd27a", unit: "AST" },
   BLK: { label: "Blocks", short: "BLK", color: "#a472ff", unit: "BLK" },
   STL: { label: "Steals", short: "STL", color: "#ff5d8f", unit: "STL" },

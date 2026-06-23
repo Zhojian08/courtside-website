@@ -29,7 +29,7 @@ export function PlayerOfGameCard({
   return (
     <div
       className="card noise relative overflow-hidden p-0"
-      style={{ boxShadow: "0 30px 80px -40px rgba(255,176,32,0.5)" }}
+      style={{ boxShadow: "0 30px 80px -40px rgba(47,125,255,0.45)" }}
     >
       <div
         className="absolute inset-0 opacity-30"

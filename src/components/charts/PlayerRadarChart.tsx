@@ -22,9 +22,9 @@ export function PlayerRadarChart({ data }: { data: RadarPoint[] }) {
           <PolarAngleAxis dataKey="stat" tick={{ fill: "#99a0b4", fontSize: 12 }} />
           <Radar
             dataKey="value"
-            stroke="#ff6a1a"
+            stroke="#2f7dff"
             strokeWidth={2}
-            fill="#ff6a1a"
+            fill="#2f7dff"
             fillOpacity={0.35}
           />
         </RadarChart>

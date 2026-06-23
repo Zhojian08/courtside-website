@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BallMark } from "@/components/brand/BallMark";
+import { WexmeLogo } from "@/components/brand/WexmeLogo";
 
 export function SiteFooter() {
   return (
@@ -7,14 +7,11 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
-            <Link href="/" className="flex items-center gap-2.5">
-              <BallMark className="h-8 w-8" />
-              <span className="font-display text-2xl tracking-wide">
-                COURT<span className="text-accent">SIDE</span>
-              </span>
+            <Link href="/" className="inline-flex" aria-label="WeXmE home">
+              <WexmeLogo className="text-3xl" withTagline />
             </Link>
-            <p className="mt-4 text-sm leading-relaxed text-muted">
-              Pro-grade coverage for amateur basketball. Box scores, standings,
+            <p className="mt-6 text-sm leading-relaxed text-muted">
+              Pro-grade coverage for UAE amateur basketball. Box scores, standings,
               leaderboards and game-night stories — powered by{" "}
               <span className="text-fg">Courtside Live</span>.
             </p>
@@ -46,7 +43,7 @@ export function SiteFooter() {
 
         <div className="section-rule mt-12" />
         <div className="mt-6 flex flex-col gap-2 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} Courtside. Sample data for demonstration.</p>
+          <p>© {new Date().getFullYear()} WeXmE · United Arab Emirates. Sample data for demonstration.</p>
           <p>Built with Next.js · Data adapter ready for the Courtside Live API.</p>
         </div>
       </div>
