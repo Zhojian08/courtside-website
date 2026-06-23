@@ -53,7 +53,7 @@ export function Hero({
           initial={{ opacity: 0, y: 26 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.05, ease }}
-          className="font-display mt-3 text-[clamp(2.8rem,9vw,7.5rem)] uppercase leading-[0.85]"
+          className="font-display mt-4 text-[clamp(3rem,10vw,9rem)] uppercase leading-[0.82]"
         >
           Every bucket.
           <br />

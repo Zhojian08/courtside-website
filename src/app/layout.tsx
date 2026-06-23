@@ -3,6 +3,7 @@ import { Anton, Inter, Exo_2 } from "next/font/google";
 import "./globals.css";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { ScrollProgress } from "@/components/ui/ScrollProgress";
 
 const anton = Anton({
   weight: "400",
@@ -43,6 +44,7 @@ export default function RootLayout({
       className={`${anton.variable} ${inter.variable} ${exo2.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ink text-fg">
+        <ScrollProgress />
         <SiteNav />
         <main className="flex-1">{children}</main>
         <SiteFooter />

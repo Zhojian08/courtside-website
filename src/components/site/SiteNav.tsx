@@ -50,7 +50,7 @@ export function SiteNav() {
               key={l.href}
               href={l.href}
               className={clsx(
-                "relative rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
+                "relative rounded-lg px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition-colors",
                 isActive(l.href)
                   ? "text-fg"
                   : "text-muted hover:text-fg"

@@ -52,8 +52,9 @@ export default async function HomePage() {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Performers of the latest game */}
-        <section className="py-20">
+        <section className="py-24 sm:py-32">
           <SectionHeading
+            index="01"
             eyebrow={`${latestAway.abbr} @ ${latestHome.abbr} · Top Performers`}
             title="Stars of the Night"
             href={`/games/${latest.id}`}
@@ -69,8 +70,8 @@ export default async function HomePage() {
         </section>
 
         {/* Latest games */}
-        <section className="py-12">
-          <SectionHeading eyebrow="Box Scores" title="Latest Games" href="/games" />
+        <section className="py-16 sm:py-24">
+          <SectionHeading index="02" eyebrow="Box Scores" title="Latest Games" href="/games" />
           <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {recent.slice(0, 6).map(({ game, home, away }) => (
               <RevealItem key={game.id}>
@@ -81,8 +82,8 @@ export default async function HomePage() {
         </section>
 
         {/* Season leaders */}
-        <section className="py-12">
-          <SectionHeading eyebrow="Who's Cooking" title="Season Leaders" href="/leaders" />
+        <section className="py-16 sm:py-24">
+          <SectionHeading index="03" eyebrow="Who's Cooking" title="Season Leaders" href="/leaders" />
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <LeaderColumn title="Points" color="#2f7dff" unit="PPG" leaders={pts} />
             <LeaderColumn title="Rebounds" color="#22c3e6" unit="RPG" leaders={reb} />
@@ -91,8 +92,8 @@ export default async function HomePage() {
         </section>
 
         {/* Standings preview */}
-        <section className="py-12">
-          <SectionHeading eyebrow="The Race" title="Standings" href="/standings" />
+        <section className="py-16 sm:py-24">
+          <SectionHeading index="04" eyebrow="The Race" title="Standings" href="/standings" />
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Reveal>
               <StandingsTable rows={nbaWest} title="NBA · West" />
@@ -104,7 +105,7 @@ export default async function HomePage() {
         </section>
 
         {/* Stats strip */}
-        <section className="py-12">
+        <section className="py-16 sm:py-24">
           <Reveal>
             <StatStrip
               stats={[
