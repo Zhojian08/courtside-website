@@ -78,11 +78,12 @@ export default async function GamesPage({
         ))}
       </div>
 
-      {active === "WEXME" && (wexme.live.length > 0 || wexme.scheduled.length > 0) && (
-        <div className="mb-12">
-          <LiveBoard initialLive={wexme.live} initialScheduled={wexme.scheduled} />
-        </div>
-      )}
+      {(active === "WEXME" || active === "all") &&
+        (wexme.live.length > 0 || wexme.scheduled.length > 0) && (
+          <div className="mb-12">
+            <LiveBoard initialLive={wexme.live} initialScheduled={wexme.scheduled} />
+          </div>
+        )}
 
       {finals.length === 0 ? (
         <p className="text-muted">

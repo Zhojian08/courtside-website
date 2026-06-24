@@ -1,12 +1,13 @@
 # 🏀 WeXmE
 
 Pro-grade coverage for basketball leagues of all ages — box scores, standings, leaderboards,
-player graphs and cinematic game-night recaps. Built to be powered by
+player graphs and cinematic game-night recaps. Powered live by
 [Courtside Live](https://courtside-live.onrender.com).
 
-Currently runs on **realistic sample data** (NBA + PBA franchises, generated
-rosters and box scores) behind a clean adapter, so the whole UI works today and
-the real Courtside Live API can be wired in later by editing a single file.
+Every tab — games, box scores, standings, season leaders, team pages and player
+profiles — is driven by the **shared Turso database** that the Courtside Live
+main system writes to (see [Going live](#going-live-with-courtside-live)). The
+public NBA / PBA / FIBA reference data is kept alongside your live league.
 
 ## Run it
 
@@ -37,16 +38,32 @@ Tech: Next.js (App Router) · TypeScript · Tailwind v4 · Framer Motion · Rech
 
 ## Going live with Courtside Live
 
-All data is read through one module: [`src/lib/courtside/index.ts`](src/lib/courtside/index.ts).
-Each function (`listGames`, `getGame`, `getSeasonLeaders`, `getStandings`,
-`getRoster`, `getPlayer`, …) currently returns sample data. To go live:
+The website and the main system **share one Turso (libSQL) database in real time.**
+Courtside Live writes every game, team, player and stat; the website reads those
+same tables and derives the games list, box scores, standings, season leaders,
+team pages and player profiles by aggregating across games. Score updates are
+forwarded to the cloud primary on write, so the site reflects them in seconds.
 
-1. Expose a read-only endpoint (or API token) on Courtside Live's existing
-   private `/api`.
-2. Set `COURTSIDE_API_URL` / `COURTSIDE_API_TOKEN` (see `.env.example`).
-3. Replace the function bodies in `index.ts` with `fetch()` calls, keeping the
-   return types in [`src/lib/courtside/types.ts`](src/lib/courtside/types.ts)
-   identical. Every page keeps working unchanged.
+How it's wired:
 
-Sample data generation lives in `src/lib/courtside/generate.ts` (deterministic,
-seeded) and team identities in `src/lib/courtside/teams.ts`.
+- [`src/lib/courtside/db.ts`](src/lib/courtside/db.ts) — one `@libsql/client`
+  connection to the shared database.
+- [`src/lib/courtside/wexme.ts`](src/lib/courtside/wexme.ts) — reads
+  `games` / `teams` / `players` directly and exposes `getWexmeFeed`,
+  `getWexmeGameDetail`, `getWexmeBoxScore`, `getWexmeStandings`,
+  `getWexmeLeaders`, `getWexmeTeam(s)`, `getWexmeRoster`, `getWexmePlayer`, …
+  If the database is unset or unreachable it **falls back** to the main system's
+  public feed (`/api/feed/games`), so the site always shows whatever is live.
+- The pages combine that live WEXME data with the NBA/PBA/FIBA reference data.
+
+### Point both apps at the same database
+
+1. **Create a Turso database** (free) and copy its URL + an auth token.
+2. **Courtside Live (Render) → Environment** — set, then redeploy:
+   - `TURSO_DATABASE_URL = libsql://<your-db>-<org>.turso.io`
+   - `TURSO_AUTH_TOKEN = <token>`
+   The main system now persists to that shared DB instead of an ephemeral file.
+3. **This website (Vercel) → Settings → Environment Variables** — set the **same
+   two values**, then redeploy.
+
+Locally, the same two vars live in `.env.local` (already git-ignored).

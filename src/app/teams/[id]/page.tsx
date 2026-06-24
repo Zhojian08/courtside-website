@@ -1,7 +1,15 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import { getRoster, getTeam, listGames } from "@/lib/courtside";
+import {
+  getRoster,
+  getTeam,
+  listGames,
+  getWexmeTeam,
+  getWexmeRoster,
+  getWexmeTeamGames,
+} from "@/lib/courtside";
+import type { GameWithTeams, Player, Team } from "@/lib/courtside/types";
 import { TeamCrest } from "@/components/ui/TeamCrest";
 import { Avatar } from "@/components/ui/Avatar";
 import { GameCard } from "@/components/cards/GameCard";
@@ -11,9 +19,32 @@ import { pct3 } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
+interface TeamView {
+  team: Team;
+  roster: Player[];
+  games: GameWithTeams[];
+}
+
+async function resolve(id: string): Promise<TeamView | null> {
+  if (id.startsWith("wx-")) {
+    const team = await getWexmeTeam(id);
+    if (!team) return null;
+    const [roster, games] = await Promise.all([getWexmeRoster(id), getWexmeTeamGames(id)]);
+    return { team, roster, games: games.slice(0, 6) };
+  }
+  const team = getTeam(id);
+  if (!team) return null;
+  const roster = getRoster(team.id);
+  const games = listGames({ league: team.league })
+    .filter((g) => g.homeTeamId === team.id || g.awayTeamId === team.id)
+    .slice(0, 6)
+    .map((g) => ({ game: g, home: getTeam(g.homeTeamId)!, away: getTeam(g.awayTeamId)! }));
+  return { team, roster, games };
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const t = getTeam(id);
+  const t = id.startsWith("wx-") ? await getWexmeTeam(id) : getTeam(id);
   return { title: t ? `${t.city} ${t.name}`.trim() : "Team" };
 }
 
@@ -21,15 +52,12 @@ const num = (v?: number) => (v === undefined ? "—" : v.toFixed(1));
 
 export default async function TeamPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const team = getTeam(id);
-  if (!team) notFound();
+  const view = await resolve(id);
+  if (!view) notFound();
+  const { team, roster, games } = view;
 
-  const roster = getRoster(team.id);
-  const games = listGames({ league: team.league })
-    .filter((g) => g.homeTeamId === team.id || g.awayTeamId === team.id)
-    .slice(0, 6);
-
-  const pct = team.wins / (team.wins + team.losses);
+  const denom = team.wins + team.losses;
+  const pct = denom ? team.wins / denom : 0;
 
   return (
     <div>
@@ -117,9 +145,9 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
           <section>
             <SectionHeading eyebrow="Recent" title="Games" href="/games" />
             <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {games.map((g) => (
-                <RevealItem key={g.id}>
-                  <GameCard game={g} home={getTeam(g.homeTeamId)!} away={getTeam(g.awayTeamId)!} />
+              {games.map(({ game, home, away }) => (
+                <RevealItem key={game.id}>
+                  <GameCard game={game} home={home} away={away} />
                 </RevealItem>
               ))}
             </RevealGroup>

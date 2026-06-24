@@ -1,10 +1,12 @@
-import { getStandings } from "@/lib/courtside";
+import { getStandings, getWexmeStandings } from "@/lib/courtside";
 import { StandingsTable } from "@/components/tables/StandingsTable";
 import { Reveal } from "@/components/ui/Reveal";
 
 export const metadata = { title: "Standings" };
+export const dynamic = "force-dynamic";
 
-export default function StandingsPage() {
+export default async function StandingsPage() {
+  const wexme = await getWexmeStandings();
   const east = getStandings("NBA", "Eastern");
   const west = getStandings("NBA", "Western");
   const pba = getStandings("PBA");
@@ -17,12 +19,23 @@ export default function StandingsPage() {
         <p className="eyebrow mb-2">The Race</p>
         <h1 className="font-display text-5xl uppercase sm:text-6xl">Standings</h1>
         <p className="mt-3 max-w-xl text-muted">
-          Real records from the latest NBA season, the PBA Commissioner&apos;s Cup,
-          and the FIBA U18 AmeriCup.
+          Live records from your WEXME system, plus the latest NBA season, the PBA
+          Commissioner&apos;s Cup, and the FIBA U18 AmeriCup.
         </p>
       </header>
 
       <div className="space-y-12">
+        {wexme.length > 0 && (
+          <section>
+            <h2 className="font-display mb-4 text-2xl uppercase text-muted">
+              WEXME · Your League
+            </h2>
+            <Reveal>
+              <StandingsTable rows={wexme} title="Standings" />
+            </Reveal>
+          </section>
+        )}
+
         <section>
           <h2 className="font-display mb-4 text-2xl uppercase text-muted">NBA · 2025–26</h2>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

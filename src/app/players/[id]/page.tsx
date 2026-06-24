@@ -1,7 +1,15 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import { getPlayer, getPlayerGames, getTeam } from "@/lib/courtside";
+import {
+  getPlayer,
+  getPlayerGames,
+  getTeam,
+  getWexmePlayer,
+  getWexmePlayerGames,
+  getWexmeTeam,
+} from "@/lib/courtside";
+import type { GameWithTeams, Player, Team } from "@/lib/courtside/types";
 import { Avatar } from "@/components/ui/Avatar";
 import { TeamCrest } from "@/components/ui/TeamCrest";
 import { CountUp } from "@/components/ui/CountUp";
@@ -10,13 +18,40 @@ import { GameCard } from "@/components/cards/GameCard";
 
 export const dynamic = "force-dynamic";
 
+interface PlayerView {
+  player: Player;
+  team: Team;
+  games: GameWithTeams[];
+}
+
+async function resolve(id: string): Promise<PlayerView | null> {
+  if (id.startsWith("wx-")) {
+    const player = await getWexmePlayer(id);
+    if (!player) return null;
+    const team = await getWexmeTeam(player.teamId);
+    if (!team) return null;
+    const games = await getWexmePlayerGames(id);
+    return { player, team, games };
+  }
+  const player = getPlayer(id);
+  if (!player) return null;
+  const team = getTeam(player.teamId);
+  if (!team) return null;
+  const games = getPlayerGames(player.id).map((g) => ({
+    game: g,
+    home: getTeam(g.homeTeamId)!,
+    away: getTeam(g.awayTeamId)!,
+  }));
+  return { player, team, games };
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const p = getPlayer(id);
+  const p = id.startsWith("wx-") ? await getWexmePlayer(id) : getPlayer(id);
   return { title: p ? p.name : "Player" };
 }
 
-const STAT_LABELS: { key: keyof NonNullable<ReturnType<typeof getPlayer>>["stats"]; label: string; suffix?: string }[] = [
+const STAT_LABELS: { key: keyof Player["stats"]; label: string; suffix?: string }[] = [
   { key: "ppg", label: "PPG" },
   { key: "rpg", label: "RPG" },
   { key: "apg", label: "APG" },
@@ -27,15 +62,9 @@ const STAT_LABELS: { key: keyof NonNullable<ReturnType<typeof getPlayer>>["stats
 
 export default async function PlayerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const player = getPlayer(id);
-  if (!player) notFound();
-  const team = getTeam(player.teamId)!;
-
-  const games = getPlayerGames(player.id).map((g) => ({
-    game: g,
-    home: getTeam(g.homeTeamId)!,
-    away: getTeam(g.awayTeamId)!,
-  }));
+  const view = await resolve(id);
+  if (!view) notFound();
+  const { player, team, games } = view;
 
   const bigStats = STAT_LABELS.filter((s) => player.stats[s.key] !== undefined).map((s) => ({
     label: s.label,

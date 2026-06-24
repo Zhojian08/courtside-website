@@ -4,9 +4,12 @@ import {
   getStandings,
   getTeam,
   getWexmeFeed,
+  getWexmeLeaders,
+  getWexmeStandings,
+  getWexmeSiteStats,
   listGames,
 } from "@/lib/courtside";
-import type { GameWithTeams } from "@/lib/courtside/types";
+import type { GameWithTeams, SeasonLeader, StandingRow } from "@/lib/courtside/types";
 import { Hero } from "@/components/home/Hero";
 import { Ticker } from "@/components/home/Ticker";
 import { StatStrip } from "@/components/home/StatStrip";
@@ -38,13 +41,30 @@ export default async function HomePage() {
   const recent = allFinals.slice(0, 12);
   const performers = latest.game.performers;
 
-  const pts = getSeasonLeaders("PTS", { limit: 5 });
-  const reb = getSeasonLeaders("REB", { limit: 5 });
-  const ast = getSeasonLeaders("AST", { limit: 5 });
+  const [wPts, wReb, wAst, wexmeStandings, wexmeStats] = await Promise.all([
+    getWexmeLeaders("PTS"),
+    getWexmeLeaders("REB"),
+    getWexmeLeaders("AST"),
+    getWexmeStandings(),
+    getWexmeSiteStats(),
+  ]);
+  const top5 = (rows: SeasonLeader[]): SeasonLeader[] =>
+    [...rows].sort((a, b) => b.value - a.value).map((r, i) => ({ ...r, rank: i + 1 })).slice(0, 5);
+  const pts = top5([...wPts, ...getSeasonLeaders("PTS")]);
+  const reb = top5([...wReb, ...getSeasonLeaders("REB")]);
+  const ast = top5([...wAst, ...getSeasonLeaders("AST")]);
 
   const nba = getStandings("NBA", "Western").slice(0, 6);
   const pba = getStandings("PBA");
   const fiba = getStandings("FIBA", "Group B");
+  const standingsCards: { rows: StandingRow[]; title: string }[] = [
+    ...(wexmeStandings.length
+      ? [{ rows: wexmeStandings.slice(0, 8), title: "WEXME · Your League" }]
+      : []),
+    { rows: nba, title: "NBA · West" },
+    { rows: pba, title: "PBA · Comm's Cup" },
+    { rows: fiba, title: "FIBA U18 · Group B" },
+  ].slice(0, 3);
 
   const stats = getSiteStats();
   const hasLive = wexme.live.length > 0 || wexme.scheduled.length > 0;
@@ -118,15 +138,11 @@ export default async function HomePage() {
         <section className="py-16 sm:py-24">
           <SectionHeading index="05" eyebrow="The Race" title="Standings" href="/standings" />
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <Reveal>
-              <StandingsTable rows={nba} title="NBA · West" />
-            </Reveal>
-            <Reveal delay={0.08}>
-              <StandingsTable rows={pba} title="PBA · Comm's Cup" />
-            </Reveal>
-            <Reveal delay={0.16}>
-              <StandingsTable rows={fiba} title="FIBA U18 · Group B" />
-            </Reveal>
+            {standingsCards.map((c, i) => (
+              <Reveal key={c.title} delay={i * 0.08}>
+                <StandingsTable rows={c.rows} title={c.title} />
+              </Reveal>
+            ))}
           </div>
         </section>
 
@@ -135,9 +151,9 @@ export default async function HomePage() {
           <Reveal>
             <StatStrip
               stats={[
-                { label: "Real games", value: stats.games + wexme.final.length + wexme.live.length + wexme.scheduled.length },
-                { label: "Players", value: stats.players },
-                { label: "Teams", value: stats.teams },
+                { label: "Real games", value: stats.games + wexmeStats.games },
+                { label: "Players", value: stats.players + wexmeStats.players },
+                { label: "Teams", value: stats.teams + wexmeStats.teams },
                 { label: "Leagues", value: stats.leagues },
               ]}
             />

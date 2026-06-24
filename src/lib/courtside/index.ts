@@ -36,9 +36,20 @@ export const LEAGUE_LABEL: Record<League, string> = {
 export {
   getWexmeFeed,
   getWexmeGameDetail,
+  getWexmeBoxScore,
+  getWexmeStandings,
+  getWexmeLeaders,
+  getWexmeTeams,
   getWexmeTeam,
   getWexmeRoster,
+  getWexmeTeamGames,
+  getWexmePlayer,
+  getWexmePlayerGames,
+  getWexmeSiteStats,
   type GameWithTeams,
+  type WexmeBoxScore,
+  type BoxScoreTeam,
+  type BoxScoreRow,
 } from "./wexme";
 
 /* ---------------- Teams ---------------- */

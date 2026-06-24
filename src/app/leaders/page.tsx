@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { clsx } from "clsx";
-import { getSeasonLeaders } from "@/lib/courtside";
-import type { League } from "@/lib/courtside/types";
+import { getSeasonLeaders, getWexmeLeaders } from "@/lib/courtside";
+import type { League, SeasonLeader, StatCategory } from "@/lib/courtside/types";
 import { LeaderColumn } from "@/components/home/LeaderColumn";
 import { Reveal } from "@/components/ui/Reveal";
 
@@ -16,10 +16,27 @@ const CATS = [
 
 const FILTERS = [
   { key: "all", label: "All Leagues" },
+  { key: "WEXME", label: "WEXME" },
   { key: "NBA", label: "NBA" },
   { key: "PBA", label: "PBA" },
   { key: "FIBA", label: "FIBA" },
 ];
+
+function reRank(rows: SeasonLeader[]): SeasonLeader[] {
+  return [...rows].sort((a, b) => b.value - a.value).map((r, i) => ({ ...r, rank: i + 1 }));
+}
+
+async function leadersFor(cat: StatCategory, active: string): Promise<SeasonLeader[]> {
+  if (active === "WEXME") return getWexmeLeaders(cat);
+  if (active === "all") {
+    const [sample, wexme] = await Promise.all([
+      Promise.resolve(getSeasonLeaders(cat)),
+      getWexmeLeaders(cat),
+    ]);
+    return reRank([...wexme, ...sample]);
+  }
+  return getSeasonLeaders(cat, { league: active as League });
+}
 
 export default async function LeadersPage({
   searchParams,
@@ -28,10 +45,13 @@ export default async function LeadersPage({
 }) {
   const { league } = await searchParams;
   const active =
-    league === "NBA" || league === "PBA" || league === "FIBA" ? league : "all";
-  const opts = active === "all" ? {} : { league: active as League };
+    league === "NBA" || league === "PBA" || league === "FIBA" || league === "WEXME"
+      ? league
+      : "all";
 
-  const boards = CATS.map((c) => ({ ...c, rows: getSeasonLeaders(c.key, opts) }));
+  const boards = await Promise.all(
+    CATS.map(async (c) => ({ ...c, rows: await leadersFor(c.key, active) }))
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { clsx } from "clsx";
 import { ArrowUpRight } from "lucide-react";
 import type { Game, Team } from "@/lib/courtside/types";
 import { TeamCrest } from "@/components/ui/TeamCrest";
@@ -14,7 +15,13 @@ export function GameCard({
   home: Team;
   away: Team;
 }) {
-  const homeWon = game.homeScore > game.awayScore;
+  // Static NBA/PBA/FIBA games carry no status → treat as final.
+  const status = game.status ?? "final";
+  const isScheduled = status === "scheduled";
+  const isLive = status === "live";
+  const homeWon = status === "final" && game.homeScore > game.awayScore;
+  const awayWon = status === "final" && game.awayScore > game.homeScore;
+  const label = isLive ? "LIVE" : isScheduled ? "SCHEDULED" : "FINAL";
 
   return (
     <Link
@@ -23,12 +30,15 @@ export function GameCard({
     >
       <div className="mb-4 flex items-center justify-between">
         <LeagueTag league={game.league} />
-        <span className="text-xs text-faint">{formatDate(game.date)} · FINAL</span>
+        <span className={clsx("text-xs", isLive ? "font-bold text-bad" : "text-faint")}>
+          {formatDate(game.date)} · {label}
+          {isLive && game.period ? ` · ${game.period}` : ""}
+        </span>
       </div>
 
-      <Row team={away} score={game.awayScore} won={!homeWon} />
+      <Row team={away} score={game.awayScore} won={awayWon} show={!isScheduled} live={isLive} />
       <div className="my-2 h-px bg-line" />
-      <Row team={home} score={game.homeScore} won={homeWon} />
+      <Row team={home} score={game.homeScore} won={homeWon} show={!isScheduled} live={isLive} />
 
       <p className="mt-4 line-clamp-1 text-sm text-muted">{game.headline}</p>
 
@@ -37,7 +47,19 @@ export function GameCard({
   );
 }
 
-function Row({ team, score, won }: { team: Team; score: number; won: boolean }) {
+function Row({
+  team,
+  score,
+  won,
+  show,
+  live,
+}: {
+  team: Team;
+  score: number;
+  won: boolean;
+  show: boolean;
+  live: boolean;
+}) {
   return (
     <div className="flex items-center gap-3">
       <TeamCrest team={team} className="h-9 w-9 text-sm" />
@@ -45,13 +67,18 @@ function Row({ team, score, won }: { team: Team; score: number; won: boolean }) 
         <p className={`truncate text-sm font-semibold ${won ? "text-fg" : "text-muted"}`}>
           {team.name}
         </p>
-        <p className="text-xs text-faint">{team.city}</p>
+        {team.city && <p className="text-xs text-faint">{team.city}</p>}
       </div>
-      <span
-        className={`stat-num font-display text-3xl ${won ? "text-accent" : "text-muted"}`}
-      >
-        {score}
-      </span>
+      {show && (
+        <span
+          className={clsx(
+            "stat-num font-display text-3xl",
+            live ? "text-bad" : won ? "text-accent" : "text-muted"
+          )}
+        >
+          {score}
+        </span>
+      )}
     </div>
   );
 }

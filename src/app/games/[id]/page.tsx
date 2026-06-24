@@ -1,7 +1,14 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, MapPin, ExternalLink } from "lucide-react";
-import { getGame, getTeam, listGames, getWexmeFeed, getWexmeGameDetail } from "@/lib/courtside";
+import {
+  getGame,
+  getTeam,
+  listGames,
+  getWexmeFeed,
+  getWexmeGameDetail,
+  getWexmeBoxScore,
+} from "@/lib/courtside";
 import type { GameWithTeams, Team } from "@/lib/courtside/types";
 import { TeamCrest } from "@/components/ui/TeamCrest";
 import { LeagueTag } from "@/components/ui/SectionHeading";
@@ -9,6 +16,7 @@ import { CountUp } from "@/components/ui/CountUp";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { PerformerCard } from "@/components/cards/PerformerCard";
 import { GameCard } from "@/components/cards/GameCard";
+import { BoxScore } from "@/components/tables/BoxScore";
 import { formatDateLong } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +44,7 @@ export default async function GameRecapPage({ params }: { params: Promise<{ id: 
   const performers = game.performers;
   const homeWon = game.homeScore > game.awayScore;
   const isFinal = (game.status ?? "final") === "final";
+  const box = game.league === "WEXME" ? await getWexmeBoxScore(id) : null;
 
   let more: GameWithTeams[] = [];
   if (game.league === "WEXME") {
@@ -110,6 +119,17 @@ export default async function GameRecapPage({ params }: { params: Promise<{ id: 
                 </RevealItem>
               ))}
             </RevealGroup>
+          </section>
+        )}
+
+        {box && (
+          <section>
+            <Reveal>
+              <h2 className="font-display mb-6 text-3xl uppercase sm:text-4xl">Box Score</h2>
+            </Reveal>
+            <Reveal>
+              <BoxScore home={box.home} away={box.away} />
+            </Reveal>
           </section>
         )}
 
