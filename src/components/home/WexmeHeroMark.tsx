@@ -56,7 +56,6 @@ export function WexmeHeroMark() {
             <span className="wexme-cycle wexme-x">X</span>
             <span className="wexme-cycle">mE</span>
           </span>
-          <div className="wexme-hero-tagline">Every Bucket · Every Game</div>
         </motion.div>
       </motion.div>
     </div>
