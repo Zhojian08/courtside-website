@@ -344,6 +344,7 @@ interface FeedTeam {
 interface FeedPlayer {
   name: string;
   jersey: string;
+  position?: string;
   teamAbbr: string;
   pts: number;
   reb: number;
@@ -376,7 +377,7 @@ function feedPlayer(p: FeedPlayer): RawPlayer {
   return {
     name: s(p.name),
     jersey: s(p.jersey),
-    position: "",
+    position: s(p.position),
     pts: n(p.pts),
     fgm: n(p.fgm),
     fga: n(p.fga),
