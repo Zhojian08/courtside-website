@@ -125,6 +125,20 @@ function fmtClock(ms: number): string {
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
 }
 
+/**
+ * Period name. Regulation periods read Q1…Q4 (or the configured label); periods
+ * beyond regulation are overtime: OT, 2OT, 3OT, 4OT… (matches the main system).
+ */
+function periodName(period: number, label: string, numPeriods: number): string {
+  const reg = numPeriods > 0 ? numPeriods : 4;
+  if (period > reg) {
+    const ot = period - reg;
+    return ot > 1 ? `${ot}OT` : "OT";
+  }
+  const first = (label || "Q").charAt(0).toUpperCase() || "Q";
+  return `${first}${period}`;
+}
+
 function mapStatus(v: string): GameStatus {
   if (v === "live") return "live";
   if (v === "final") return "final";
@@ -144,7 +158,7 @@ const GAMES_LIMIT = 500;
 const DB_TIMEOUT_MS = 4500;
 
 const GAME_COLS =
-  "id, public_code, title, league, venue, status, period, period_label, game_clock_ms, scheduled_at, created_at";
+  "id, public_code, title, league, venue, status, period, period_label, num_periods, game_clock_ms, scheduled_at, created_at";
 const TEAM_COLS = "id, game_id, side, name, abbreviation, color, score";
 const PLAYER_COLS =
   "team_id, name, jersey, position, fgm, fga, tpm, tpa, ftm, fta, oreb, dreb, ast, stl, blk, tov, pf, seconds_played";
@@ -234,7 +248,7 @@ function mapGameRow(g: Row, sides: Map<string, RawTeam> | undefined): RawGame | 
   if (!home || !away) return null;
   const status = mapStatus(s(g.status));
   const startsAt = s(g.scheduled_at) || s(g.created_at);
-  const periodLabel = s(g.period_label) || "Q";
+  const periodLabel = s(g.period_label) || "Quarter";
   return {
     code: s(g.public_code),
     title: s(g.title),
@@ -245,7 +259,7 @@ function mapGameRow(g: Row, sides: Map<string, RawTeam> | undefined): RawGame | 
     startsAt,
     period:
       status === "live"
-        ? `${periodLabel[0]}${n(g.period)} · ${fmtClock(n(g.game_clock_ms))}`
+        ? `${periodName(n(g.period), periodLabel, n(g.num_periods))} · ${fmtClock(n(g.game_clock_ms))}`
         : null,
     home,
     away,

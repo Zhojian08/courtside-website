@@ -12,6 +12,7 @@ const CATS = [
   { key: "PTS" as const, title: "Points", unit: "PPG", color: "#2f7dff" },
   { key: "REB" as const, title: "Rebounds", unit: "RPG", color: "#22c3e6" },
   { key: "AST" as const, title: "Assists", unit: "APG", color: "#2fd27a" },
+  { key: "BLK" as const, title: "Blocks", unit: "BPG", color: "#a472ff" },
 ];
 
 const FILTERS = [
@@ -79,10 +80,10 @@ export default async function LeadersPage({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
         {boards.map((b, i) =>
           b.rows.length > 0 ? (
-            <Reveal key={b.key} delay={(i % 3) * 0.06}>
+            <Reveal key={b.key} delay={(i % 4) * 0.06}>
               <LeaderColumn title={b.title} color={b.color} unit={b.unit} leaders={b.rows} />
             </Reveal>
           ) : null

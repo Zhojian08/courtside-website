@@ -39,6 +39,8 @@ export default async function HomePage() {
 
   const latest = allFinals[0];
   const recent = allFinals.slice(0, 12);
+  // Marquee: live first, then upcoming, then recent finals.
+  const tickerItems = [...wexme.live, ...wexme.scheduled, ...recent].slice(0, 24);
   const performers = latest.game.performers;
 
   const [wPts, wReb, wAst, wexmeStandings, wexmeStats] = await Promise.all([
@@ -71,9 +73,9 @@ export default async function HomePage() {
 
   return (
     <>
-      <Hero game={latest.game} home={latest.home} away={latest.away} />
+      <Hero />
 
-      <Ticker items={recent} />
+      <Ticker items={tickerItems} />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* WEXME live & upcoming */}

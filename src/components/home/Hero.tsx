@@ -4,25 +4,13 @@ import Link from "next/link";
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, ChevronDown } from "lucide-react";
-import type { Game, Team } from "@/lib/courtside/types";
-import { TeamCrest } from "@/components/ui/TeamCrest";
-import { LeagueTag } from "@/components/ui/SectionHeading";
-import { formatDateLong } from "@/lib/format";
+import { WexmeHeroMark } from "@/components/home/WexmeHeroMark";
 
-export function Hero({
-  game,
-  home,
-  away,
-}: {
-  game: Game;
-  home: Team;
-  away: Team;
-}) {
+export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 160]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const winner = game.homeScore > game.awayScore ? home : away;
 
   const ease = [0.2, 0.7, 0.2, 1] as const;
 
@@ -35,7 +23,7 @@ export function Hero({
       >
         <div
           className="h-full w-full animate-floaty rounded-full"
-          style={{ background: `radial-gradient(circle, ${winner.primary}, transparent 65%)` }}
+          style={{ background: `radial-gradient(circle, var(--color-accent), transparent 65%)` }}
         />
       </motion.div>
 
@@ -87,27 +75,12 @@ export function Hero({
           </Link>
         </motion.div>
 
-        {/* featured latest result */}
+        {/* explosive animated WeXmE mark (replaces the old featured-game card) */}
         <motion.div
           style={{ y }}
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.35, ease }}
-          className="mt-14 lg:absolute lg:right-8 lg:top-1/2 lg:mt-0 lg:w-[360px] lg:-translate-y-1/2"
+          className="mt-14 flex justify-center lg:absolute lg:right-10 lg:top-1/2 lg:mt-0 lg:-translate-y-1/2"
         >
-          <Link
-            href={`/games/${game.id}`}
-            className="card card-hover noise glass block overflow-hidden p-5"
-          >
-            <div className="mb-3 flex items-center justify-between">
-              <LeagueTag league={game.league} />
-            </div>
-            <ScoreRow team={away} score={game.awayScore} win={game.awayScore > game.homeScore} />
-            <div className="my-2.5 h-px bg-line" />
-            <ScoreRow team={home} score={game.homeScore} win={game.homeScore > game.awayScore} />
-            <p className="mt-4 text-sm text-muted">{game.headline}</p>
-            <p className="mt-1 text-xs text-faint">{formatDateLong(game.date)}</p>
-          </Link>
+          <WexmeHeroMark />
         </motion.div>
       </div>
 
@@ -119,20 +92,5 @@ export function Hero({
         <ChevronDown className="mx-auto h-5 w-5 animate-bounce text-faint" />
       </motion.div>
     </section>
-  );
-}
-
-function ScoreRow({ team, score, win }: { team: Team; score: number; win: boolean }) {
-  return (
-    <div className="flex items-center gap-3">
-      <TeamCrest team={team} className="h-10 w-10 text-sm" />
-      <div className="min-w-0 flex-1">
-        <p className={`truncate font-semibold ${win ? "text-fg" : "text-muted"}`}>{team.name}</p>
-        <p className="text-xs text-faint">{team.city}</p>
-      </div>
-      <span className={`stat-num font-display text-4xl ${win ? "text-accent" : "text-muted"}`}>
-        {score}
-      </span>
-    </div>
   );
 }

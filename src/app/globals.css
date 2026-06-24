@@ -249,6 +249,92 @@ body {
 }
 .pulse-ring { animation: pulse-ring 2.4s infinite; }
 
+/* ------------------------------------------------------------------ */
+/*  Explosive animated WeXmE hero mark                                 */
+/* ------------------------------------------------------------------ */
+.wexme-hero {
+  width: min(86vw, 420px);
+  aspect-ratio: 1;
+}
+/* the big animated wordmark */
+.wexme-hero-mark {
+  font-size: clamp(3.4rem, 9vw, 6rem);
+  filter: drop-shadow(0 0 28px rgba(47, 125, 255, 0.45));
+}
+/* full-spectrum colour pan across the letters ("changing colour") */
+.wexme-cycle {
+  background: linear-gradient(100deg,
+    #2f7dff 0%, #73a9ff 16%, #a472ff 34%, #ff5d8f 52%,
+    #ffb020 66%, #2fd27a 80%, #22c3e6 90%, #2f7dff 100%);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: wexme-pan 7s linear infinite;
+}
+.wexme-cycle.wexme-x {
+  font-size: 1.16em;
+  margin: 0 -0.012em;
+  animation-duration: 4.5s;
+  filter: drop-shadow(0 0 16px rgba(116, 169, 255, 0.85));
+}
+@keyframes wexme-pan {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+.wexme-hero-tagline {
+  margin-top: 0.9rem;
+  text-align: center;
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+/* rotating starburst rays behind the mark */
+.wexme-burst {
+  position: absolute;
+  inset: -8%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg,
+    rgba(47, 125, 255, 0.20) 0deg 1.6deg, transparent 1.6deg 13deg);
+  -webkit-mask: radial-gradient(circle, #000 18%, transparent 66%);
+  mask: radial-gradient(circle, #000 18%, transparent 66%);
+  animation: wexme-spin 22s linear infinite;
+}
+.wexme-burst.alt {
+  background: repeating-conic-gradient(from 6deg,
+    rgba(164, 114, 255, 0.16) 0deg 1deg, transparent 1deg 18deg);
+  animation: wexme-spin-rev 30s linear infinite;
+  inset: -2%;
+}
+@keyframes wexme-spin { to { transform: rotate(360deg); } }
+@keyframes wexme-spin-rev { to { transform: rotate(-360deg); } }
+/* pulsing core glow */
+.wexme-glow {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(47, 125, 255, 0.42), rgba(11, 70, 216, 0.10) 45%, transparent 68%);
+  animation: wexme-glow-pulse 3.4s ease-in-out infinite;
+}
+@keyframes wexme-glow-pulse {
+  0%, 100% { transform: scale(0.92); opacity: 0.55; }
+  50% { transform: scale(1.12); opacity: 0.9; }
+}
+/* burst particles */
+.wexme-particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px 1px currentColor;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
