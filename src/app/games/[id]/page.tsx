@@ -72,7 +72,7 @@ export default async function GameRecapPage({ params }: { params: Promise<{ id: 
           </Link>
 
           <div className="mb-6 flex flex-wrap items-center gap-3">
-            <LeagueTag league={game.league} />
+            <LeagueTag league={game.league} label={game.leagueLabel} />
             {game.series && <span className="text-sm font-semibold text-fg">{game.series}</span>}
             <span className={`text-sm ${game.status === "live" ? "font-bold text-bad" : "text-faint"}`}>
               {formatDateLong(game.date)} · {statusLabel(game.status)}

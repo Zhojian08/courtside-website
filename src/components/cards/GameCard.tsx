@@ -31,7 +31,7 @@ export function GameCard({
       className="card card-hover noise group relative block overflow-hidden p-5"
     >
       <div className="mb-4 flex items-center justify-between">
-        <LeagueTag league={badge ?? game.league} />
+        <LeagueTag league={game.league} label={badge ?? game.leagueLabel} />
         <span className={clsx("text-xs", isLive ? "font-bold text-bad" : "text-faint")}>
           {formatDate(game.date)} · {label}
           {isLive && game.period ? ` · ${game.period}` : ""}

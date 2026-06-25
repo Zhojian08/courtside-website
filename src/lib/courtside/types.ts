@@ -61,6 +61,8 @@ export interface GamePerformer {
 export interface Game {
   id: string;
   league: League;
+  /** Short badge label override (e.g. a WEXME game's portfolio "MOWEN"). Falls back to the league name. */
+  leagueLabel?: string;
   date: string; // ISO yyyy-mm-dd
   homeTeamId: string;
   awayTeamId: string;

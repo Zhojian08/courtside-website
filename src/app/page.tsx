@@ -85,8 +85,8 @@ export default async function HomePage() {
               index="01"
               eyebrow="WEXME · Synced from your system"
               title="Live & Upcoming"
-              href="/games?league=WEXME"
-              hrefLabel="All WEXME games"
+              href="/games"
+              hrefLabel="All games"
             />
             <Reveal>
               <LiveBoard initialLive={wexme.live} initialScheduled={wexme.scheduled} />

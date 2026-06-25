@@ -149,6 +149,14 @@ function ptsOf(p: { fgm: number; tpm: number; ftm: number }): number {
   return 2 * p.fgm + p.tpm + p.ftm;
 }
 
+// Short badge label for a WEXME game, derived from its competition/league name
+// (the main system's "portfolio") — e.g. "Mowen Developmental League…" → "MOWEN".
+// Falls back to "WEXME" when the game has no league set.
+function leagueBadge(competition: string): string {
+  const first = (competition || "").trim().split(/\s+/)[0];
+  return first ? first.toUpperCase().slice(0, 16) : "WEXME";
+}
+
 /* ----------------------------- source: shared DB --------------------------- */
 
 // Defensive upper bound on a single-season read so an unexpectedly huge history
@@ -523,6 +531,7 @@ function toGameWithTeams(rg: RawGame): GameWithTeams {
   const game: Game = {
     id: rg.code,
     league: LEAGUE,
+    leagueLabel: leagueBadge(rg.competition),
     date: rg.date,
     homeTeamId: home.id,
     awayTeamId: away.id,
