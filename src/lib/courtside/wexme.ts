@@ -772,10 +772,16 @@ export async function getWexmeGameDetail(code: string): Promise<GameWithTeams | 
 /** Admin-curated tabs ("collections") from Courtside Live: ordered sets of WEXME
  *  game codes, shown as extra filter pills on the Games page. Read from the public
  *  feed (visible tabs only). Returns [] on any failure so the page still renders. */
+export interface CollectionCategory {
+  name: string;
+  slug: string;
+  codes: string[];
+}
 export interface CollectionTab {
   name: string;
   slug: string;
   codes: string[];
+  categories: CollectionCategory[]; // sub-categories under this club (may be empty)
 }
 
 export async function getCollections(): Promise<CollectionTab[]> {
@@ -785,8 +791,19 @@ export async function getCollections(): Promise<CollectionTab[]> {
     const res = await fetch(`${MAIN}/api/feed/collections`, { signal: ctrl.signal, cache: "no-store" });
     clearTimeout(timer);
     if (!res.ok) return [];
-    const data = (await res.json()) as { collections?: CollectionTab[] };
-    return (data.collections ?? []).filter((c) => c && c.slug && Array.isArray(c.codes));
+    const data = (await res.json()) as { collections?: (Partial<CollectionTab> & { categories?: CollectionCategory[] })[] };
+    return (data.collections ?? [])
+      .filter((c): c is CollectionTab => !!c && !!c.slug && Array.isArray(c.codes))
+      .map((c) => ({
+        name: c.name,
+        slug: c.slug,
+        codes: c.codes,
+        categories: Array.isArray(c.categories)
+          ? c.categories
+              .filter((x) => x && x.slug && Array.isArray(x.codes))
+              .map((x) => ({ name: x.name, slug: x.slug, codes: x.codes }))
+          : [],
+      }));
   } catch {
     return [];
   }

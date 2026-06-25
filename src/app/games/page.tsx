@@ -21,9 +21,9 @@ const BASE_FILTERS = [
 export default async function GamesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ league?: string; tab?: string }>;
+  searchParams: Promise<{ league?: string; tab?: string; cat?: string }>;
 }) {
-  const { league, tab } = await searchParams;
+  const { league, tab, cat } = await searchParams;
 
   // Admin-curated tabs (collections) from Courtside Live, appended after the built-ins.
   const collections = await getCollections();
@@ -40,7 +40,9 @@ export default async function GamesPage({
 
   // A game placed in any custom tab/portfolio lives ONLY in that tab — drop it from
   // the generic WEXME bucket so it doesn't double-post. (All/NBA/PBA/FIBA unaffected.)
-  const tabbedCodes = new Set(collections.flatMap((c) => c.codes));
+  const tabbedCodes = new Set(
+    collections.flatMap((c) => [...c.codes, ...c.categories.flatMap((x) => x.codes)])
+  );
   const hideTabbed = active === "WEXME";
   const boardLive = hideTabbed ? wexme.live.filter((m) => !tabbedCodes.has(m.game.id)) : wexme.live;
   const boardScheduled = hideTabbed
@@ -51,11 +53,19 @@ export default async function GamesPage({
   let ordered: GameWithTeams[] | null = null;
   let sections: { date: string; games: GameWithTeams[] }[] = [];
 
+  const activeClub = activeTab ? collections.find((c) => c.slug === activeTab)! : null;
+  const clubCats = activeClub?.categories ?? [];
+  const activeCat = activeClub && cat ? clubCats.find((x) => x.slug === cat) ?? null : null;
+
   if (activeTab) {
-    const col = collections.find((c) => c.slug === activeTab)!;
     const byCode = new Map<string, GameWithTeams>();
     for (const m of [...wexme.live, ...wexme.scheduled, ...wexme.final]) byCode.set(m.game.id, m);
-    ordered = col.codes.map((code) => byCode.get(code)).filter((m): m is GameWithTeams => !!m);
+    // A selected category shows its games; a club with no category selected shows
+    // everything in it (its direct games + all its categories' games).
+    const codes = activeCat
+      ? activeCat.codes
+      : [...new Set([...activeClub!.codes, ...clubCats.flatMap((x) => x.codes)])];
+    ordered = codes.map((code) => byCode.get(code)).filter((m): m is GameWithTeams => !!m);
   } else {
     let finals: GameWithTeams[];
     if (active === "WEXME") {
@@ -81,7 +91,7 @@ export default async function GamesPage({
   }
 
   const filters = [...BASE_FILTERS, ...collections.map((c) => ({ key: `tab:${c.slug}`, label: c.name }))];
-  const activeColName = collections.find((c) => c.slug === activeTab)?.name;
+  const activeColName = activeCat ? activeCat.name : activeClub?.name;
   const isActive = (key: string) =>
     key.startsWith("tab:") ? activeTab === key.slice(4) : !activeTab && active === key;
   const hrefFor = (key: string) =>
@@ -122,6 +132,33 @@ export default async function GamesPage({
           </Link>
         ))}
       </div>
+
+      {activeClub && clubCats.length > 0 && (
+        <div className="mb-8 -mt-4 flex flex-wrap items-center gap-2">
+          <span className="mr-1 text-xs uppercase tracking-wider text-faint">{activeClub.name}:</span>
+          <Link
+            href={`/games?tab=${activeClub.slug}`}
+            className={clsx(
+              "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
+              !activeCat ? "bg-accent text-black" : "border border-line text-muted hover:text-fg"
+            )}
+          >
+            All
+          </Link>
+          {clubCats.map((c) => (
+            <Link
+              key={c.slug}
+              href={`/games?tab=${activeClub.slug}&cat=${c.slug}`}
+              className={clsx(
+                "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
+                activeCat?.slug === c.slug ? "bg-accent text-black" : "border border-line text-muted hover:text-fg"
+              )}
+            >
+              {c.name}
+            </Link>
+          ))}
+        </div>
+      )}
 
       {showLive && (
         <div className="mb-12">
