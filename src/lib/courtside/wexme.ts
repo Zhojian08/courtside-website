@@ -913,8 +913,9 @@ export async function getWexmeTeamGames(teamId: string): Promise<GameWithTeams[]
     .sort((a, b) => (b.game.date ?? "").localeCompare(a.game.date ?? ""));
 }
 
-export async function getWexmeStandings(): Promise<StandingRow[]> {
-  const teams = await getWexmeTeams();
+// Rank teams into standing rows (win% → wins → name), with a non-negative
+// games-behind measured from the leader.
+function toStandingRows(teams: Team[]): StandingRow[] {
   const sorted = [...teams].sort((a, b) => {
     const pa = a.wins + a.losses ? a.wins / (a.wins + a.losses) : 0;
     const pb = b.wins + b.losses ? b.wins / (b.wins + b.losses) : 0;
@@ -922,8 +923,6 @@ export async function getWexmeStandings(): Promise<StandingRow[]> {
     if (b.wins !== a.wins) return b.wins - a.wins;
     return a.name.localeCompare(b.name);
   });
-  // Games-behind is measured from the leader and never negative (teams may have
-  // played a different number of games, so a raw formula could go below zero).
   const top = sorted[0];
   return sorted.map((team, i) => ({
     rank: i + 1,
@@ -933,6 +932,120 @@ export async function getWexmeStandings(): Promise<StandingRow[]> {
     pct: team.wins + team.losses ? team.wins / (team.wins + team.losses) : 0,
     gb: top ? Math.max(0, (top.wins - team.wins + (team.losses - top.losses)) / 2) : 0,
   }));
+}
+
+// Flat standings across every WEXME team (used only for compact previews).
+export async function getWexmeStandings(): Promise<StandingRow[]> {
+  return toStandingRows(await getWexmeTeams());
+}
+
+// Portfolio = the league's first word / badge, e.g. "MOWEN".
+function portfolioOf(league: string): string {
+  return (league.trim().split(/\s+/)[0] || "WEXME").toUpperCase();
+}
+// Division title: the part after an em/en dash, else the league name.
+function divisionTitle(league: string): string {
+  const parts = league.split(/\s*[—–]\s*/);
+  const last = parts[parts.length - 1]?.trim();
+  if (parts.length > 1 && last) return last; // "Homegrown"
+  return league.trim() || "WEXME"; // "City League"
+}
+
+export interface WexmeStandingTable {
+  league: string;
+  title: string; // division name, or the league name when there's no division
+  rows: StandingRow[];
+}
+export interface WexmeStandingPortfolio {
+  portfolio: string; // "MOWEN"
+  tables: WexmeStandingTable[];
+}
+
+/**
+ * Standings grouped by portfolio → division, computed PER competition. A team
+ * that plays in two leagues gets a separate record in each (instead of merging
+ * into one confusing cross-league row), so e.g. MOWEN gets its own section with
+ * Homegrown / FUNdamentals / Grassroots tables.
+ */
+export async function getWexmeStandingGroups(): Promise<WexmeStandingPortfolio[]> {
+  const games = await loadRawGames();
+
+  const byLeague = new Map<string, RawGame[]>();
+  for (const g of games) {
+    const lg = (g.competition || "").trim() || "WEXME";
+    const arr = byLeague.get(lg);
+    if (arr) arr.push(g);
+    else byLeague.set(lg, [g]);
+  }
+
+  const tables: WexmeStandingTable[] = [];
+  for (const [league, lgGames] of byLeague) {
+    const acc = new Map<
+      string,
+      { name: string; abbr: string; color: string; wins: number; losses: number; date: string }
+    >();
+    const ensure = (rt: RawTeam, date: string) => {
+      let t = acc.get(rt.name);
+      if (!t) {
+        t = { name: rt.name, abbr: rt.abbr, color: rt.color, wins: 0, losses: 0, date };
+        acc.set(rt.name, t);
+      } else if (date > t.date) {
+        t.date = date;
+        t.abbr = rt.abbr;
+        t.color = rt.color;
+      }
+      return t;
+    };
+    for (const g of lgGames) {
+      const h = ensure(g.home, g.date);
+      const a = ensure(g.away, g.date);
+      if (g.status === "final") {
+        if (g.home.score > g.away.score) {
+          h.wins++;
+          a.losses++;
+        } else if (g.away.score > g.home.score) {
+          a.wins++;
+          h.losses++;
+        }
+      }
+    }
+    const teamList: Team[] = [...acc.values()].map((t) => {
+      const color = t.color || "#2f7dff";
+      return {
+        id: teamId(t.name),
+        league: LEAGUE,
+        city: "",
+        name: t.name,
+        abbr: t.abbr,
+        conference: portfolioOf(league),
+        primary: color,
+        secondary: darken(color),
+        wins: t.wins,
+        losses: t.losses,
+        source: `${MAIN}`,
+      };
+    });
+    tables.push({ league, title: divisionTitle(league), rows: toStandingRows(teamList) });
+  }
+
+  const byPortfolio = new Map<string, WexmeStandingTable[]>();
+  for (const t of tables) {
+    const p = portfolioOf(t.league);
+    const arr = byPortfolio.get(p);
+    if (arr) arr.push(t);
+    else byPortfolio.set(p, [t]);
+  }
+
+  const out: WexmeStandingPortfolio[] = [...byPortfolio.entries()].map(([portfolio, ts]) => ({
+    portfolio,
+    tables: ts.sort((a, b) => a.title.localeCompare(b.title)),
+  }));
+
+  // Portfolios with completed games first, then alphabetical.
+  const hasResults = (p: WexmeStandingPortfolio) =>
+    p.tables.some((t) => t.rows.some((r) => r.wins + r.losses > 0)) ? 0 : 1;
+  out.sort((a, b) => hasResults(a) - hasResults(b) || a.portfolio.localeCompare(b.portfolio));
+  return out;
 }
 
 const CAT_KEY: Record<StatCategory, keyof PlayerAgg> = {

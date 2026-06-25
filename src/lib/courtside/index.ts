@@ -38,6 +38,7 @@ export {
   getWexmeGameDetail,
   getWexmeBoxScore,
   getWexmeStandings,
+  getWexmeStandingGroups,
   getWexmeLeaders,
   getWexmeTeams,
   getWexmeTeam,
@@ -52,6 +53,8 @@ export {
   type BoxScoreTeam,
   type BoxScoreRow,
   type CollectionTab,
+  type WexmeStandingPortfolio,
+  type WexmeStandingTable,
 } from "./wexme";
 
 /* ---------------- Teams ---------------- */

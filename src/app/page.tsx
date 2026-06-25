@@ -5,7 +5,7 @@ import {
   getTeam,
   getWexmeFeed,
   getWexmeLeaders,
-  getWexmeStandings,
+  getWexmeStandingGroups,
   getWexmeSiteStats,
   listGames,
 } from "@/lib/courtside";
@@ -43,11 +43,12 @@ export default async function HomePage() {
   const tickerItems = [...wexme.live, ...wexme.scheduled, ...recent].slice(0, 24);
   const performers = latest.game.performers;
 
-  const [wPts, wReb, wAst, wexmeStandings, wexmeStats] = await Promise.all([
+  const [wPts, wReb, wAst, wBlk, wexmeGroups, wexmeStats] = await Promise.all([
     getWexmeLeaders("PTS"),
     getWexmeLeaders("REB"),
     getWexmeLeaders("AST"),
-    getWexmeStandings(),
+    getWexmeLeaders("BLK"),
+    getWexmeStandingGroups(),
     getWexmeSiteStats(),
   ]);
   const top5 = (rows: SeasonLeader[]): SeasonLeader[] =>
@@ -55,13 +56,16 @@ export default async function HomePage() {
   const pts = top5([...wPts, ...getSeasonLeaders("PTS")]);
   const reb = top5([...wReb, ...getSeasonLeaders("REB")]);
   const ast = top5([...wAst, ...getSeasonLeaders("AST")]);
+  const blk = top5([...wBlk, ...getSeasonLeaders("BLK")]);
 
   const nba = getStandings("NBA", "Western").slice(0, 6);
   const pba = getStandings("PBA");
   const fiba = getStandings("FIBA", "Group B");
+  // Home teaser: the most relevant WEXME league (groups are sorted results-first).
+  const wexmeTop = wexmeGroups[0]?.tables[0];
   const standingsCards: { rows: StandingRow[]; title: string }[] = [
-    ...(wexmeStandings.length
-      ? [{ rows: wexmeStandings.slice(0, 8), title: "WEXME · Your League" }]
+    ...(wexmeTop
+      ? [{ rows: wexmeTop.rows.slice(0, 8), title: `${wexmeGroups[0].portfolio} · ${wexmeTop.title}` }]
       : []),
     { rows: nba, title: "NBA · West" },
     { rows: pba, title: "PBA · Comm's Cup" },
@@ -129,10 +133,11 @@ export default async function HomePage() {
         {/* Season leaders */}
         <section className="py-16 sm:py-24">
           <SectionHeading index="04" eyebrow="Who's Cooking" title="Stat Leaders" href="/leaders" />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <LeaderColumn title="Points" color="#2f7dff" unit="PPG" leaders={pts} />
             <LeaderColumn title="Rebounds" color="#22c3e6" unit="RPG" leaders={reb} />
             <LeaderColumn title="Assists" color="#2fd27a" unit="APG" leaders={ast} />
+            <LeaderColumn title="Blocks" color="#a472ff" unit="BPG" leaders={blk} />
           </div>
         </section>
 
