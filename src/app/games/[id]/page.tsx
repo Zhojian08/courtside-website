@@ -148,7 +148,7 @@ export default async function GameRecapPage({ params }: { params: Promise<{ id: 
         {more.length > 0 && (
           <section>
             <Reveal>
-              <h2 className="font-display mb-6 text-3xl uppercase sm:text-4xl">More {game.league}</h2>
+              <h2 className="font-display mb-6 text-3xl uppercase sm:text-4xl">Recent Games</h2>
             </Reveal>
             <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               {more.map(({ game: g, home: h, away: a }) => (

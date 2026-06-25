@@ -87,7 +87,7 @@ export default async function HomePage() {
           <section className="py-20 sm:py-28">
             <SectionHeading
               index="01"
-              eyebrow="WEXME · Synced from your system"
+              eyebrow="WEXME · Basketball Games"
               title="Live & Upcoming"
               href="/games"
               hrefLabel="All games"

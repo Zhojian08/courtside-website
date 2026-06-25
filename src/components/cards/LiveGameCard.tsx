@@ -2,13 +2,7 @@ import Link from "next/link";
 import { clsx } from "clsx";
 import type { GameWithTeams } from "@/lib/courtside/types";
 import { TeamCrest } from "@/components/ui/TeamCrest";
-import { formatDate } from "@/lib/format";
-
-function tipTime(startsAt?: string): string {
-  if (!startsAt) return "";
-  const t = startsAt.slice(11, 16); // HH:MM (UTC, consistent server/client)
-  return `${formatDate(startsAt.slice(0, 10))} · ${t}`;
-}
+import { LocalDateTime } from "@/components/ui/LocalDateTime";
 
 export function LiveGameCard({ item }: { item: GameWithTeams }) {
   const { game, home, away } = item;
@@ -35,7 +29,11 @@ export function LiveGameCard({ item }: { item: GameWithTeams }) {
           <span className="text-xs font-semibold text-faint">FINAL</span>
         )}
         <span className="text-xs text-faint">
-          {scheduled ? tipTime(game.startsAt) : game.period || game.venue}
+          {scheduled ? (
+            game.startsAt ? <LocalDateTime iso={game.startsAt} /> : game.venue
+          ) : (
+            game.period || game.venue
+          )}
         </span>
       </div>
 
