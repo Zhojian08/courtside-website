@@ -72,6 +72,7 @@ export default async function GamesPage({
   }
 
   const filters = [...BASE_FILTERS, ...collections.map((c) => ({ key: `tab:${c.slug}`, label: c.name }))];
+  const activeColName = collections.find((c) => c.slug === activeTab)?.name;
   const isActive = (key: string) =>
     key.startsWith("tab:") ? activeTab === key.slice(4) : !activeTab && active === key;
   const hrefFor = (key: string) =>
@@ -131,7 +132,7 @@ export default async function GamesPage({
         <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {ordered!.map(({ game, home, away }) => (
             <RevealItem key={game.id}>
-              <GameCard game={game} home={home} away={away} />
+              <GameCard game={game} home={home} away={away} badge={activeColName} />
             </RevealItem>
           ))}
         </RevealGroup>

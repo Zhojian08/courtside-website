@@ -10,10 +10,12 @@ export function GameCard({
   game,
   home,
   away,
+  badge,
 }: {
   game: Game;
   home: Team;
   away: Team;
+  badge?: string; // when shown inside a custom tab, label the pill with the tab name
 }) {
   // Static NBA/PBA/FIBA games carry no status → treat as final.
   const status = game.status ?? "final";
@@ -29,7 +31,7 @@ export function GameCard({
       className="card card-hover noise group relative block overflow-hidden p-5"
     >
       <div className="mb-4 flex items-center justify-between">
-        <LeagueTag league={game.league} />
+        <LeagueTag league={badge ?? game.league} />
         <span className={clsx("text-xs", isLive ? "font-bold text-bad" : "text-faint")}>
           {formatDate(game.date)} · {label}
           {isLive && game.period ? ` · ${game.period}` : ""}

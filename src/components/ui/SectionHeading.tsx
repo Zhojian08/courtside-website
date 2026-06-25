@@ -51,7 +51,9 @@ const LEAGUE_TAG: Record<string, { border: string; color: string }> = {
 };
 
 export function LeagueTag({ league }: { league: string }) {
-  const c = LEAGUE_TAG[league] ?? LEAGUE_TAG.NBA;
+  // Unknown labels here are admin-curated tab names (e.g. "MOWEN"), which are
+  // WEXME-family games — style them like WEXME rather than the NBA default.
+  const c = LEAGUE_TAG[league] ?? LEAGUE_TAG.WEXME;
   return (
     <span className="chip" style={{ borderColor: c.border, color: c.color }}>
       {league}
