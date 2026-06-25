@@ -10,20 +10,27 @@ export const dynamic = "force-dynamic";
 export default async function StandingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; g?: string }>;
 }) {
-  const { tab } = await searchParams;
+  const { tab, g } = await searchParams;
   const wexmeGroups = await getWexmeStandingGroups();
+  const hasWexme = wexmeGroups.length > 0;
 
-  // One tab per WEXME portfolio (MOWEN, CITY, …), then the reference leagues.
+  // Top-level: WEXME (your competitions live under here), then the reference leagues.
   const tabs = [
-    ...wexmeGroups.map((g) => ({ key: g.portfolio, label: g.portfolio })),
+    ...(hasWexme ? [{ key: "WEXME", label: "WEXME" }] : []),
     { key: "NBA", label: "NBA" },
     { key: "PBA", label: "PBA" },
     { key: "FIBA", label: "FIBA" },
   ];
   const activeKey = tab && tabs.some((t) => t.key === tab) ? tab : tabs[0]?.key ?? "NBA";
-  const wx = wexmeGroups.find((g) => g.portfolio === activeKey);
+
+  // Under WEXME, each competition (HARBOR, CITY, MOWEN, …) is a sub-pill.
+  const activeGroup =
+    activeKey === "WEXME"
+      ? (g && wexmeGroups.some((x) => x.portfolio === g) ? g : wexmeGroups[0]?.portfolio) ?? null
+      : null;
+  const wx = activeGroup ? wexmeGroups.find((x) => x.portfolio === activeGroup) : null;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
@@ -52,6 +59,26 @@ export default async function StandingsPage({
           </Link>
         ))}
       </div>
+
+      {activeKey === "WEXME" && hasWexme && (
+        <div className="mb-8 -mt-4 flex flex-wrap items-center gap-2">
+          <span className="mr-1 text-xs uppercase tracking-wider text-faint">WEXME:</span>
+          {wexmeGroups.map((x) => (
+            <Link
+              key={x.portfolio}
+              href={`/standings?tab=WEXME&g=${encodeURIComponent(x.portfolio)}`}
+              className={clsx(
+                "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
+                x.portfolio === activeGroup
+                  ? "bg-accent text-black"
+                  : "border border-line text-muted hover:text-fg"
+              )}
+            >
+              {x.portfolio}
+            </Link>
+          ))}
+        </div>
+      )}
 
       {wx ? (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
