@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import type { Row } from "@libsql/client";
 import { wexmeDb } from "./db";
 import type {
@@ -453,10 +454,26 @@ async function loadFromFeed(): Promise<RawGame[]> {
  * All games from the main system, normalized. DB first, HTTP feed as fallback.
  * Cached per request so a single page render reads the source only once.
  */
-const loadRawGames = cache(async (): Promise<RawGame[]> => {
+// One read from the source (DB first, HTTP feed as fallback).
+async function fetchRawGames(): Promise<RawGame[]> {
   const fromDb = await withTimeout(loadFromDb(), DB_TIMEOUT_MS, null);
   if (fromDb && fromDb.length) return fromDb;
   return loadFromFeed();
+}
+
+// Cross-request data cache: rapid/concurrent page loads (and the live poll) reuse
+// one read for DATA_TTL seconds instead of each hitting the DB/feed — the main
+// speed-up for the site. The TTL stays short so live scores remain fresh.
+const DATA_TTL = 10;
+const fetchRawGamesCached = unstable_cache(fetchRawGames, ["wexme:raw-games"], {
+  revalidate: DATA_TTL,
+  tags: ["wexme"],
+});
+
+const loadRawGames = cache(async (): Promise<RawGame[]> => {
+  const games = await fetchRawGamesCached();
+  // Don't serve a momentarily-empty cache (source was briefly unavailable) — read live.
+  return games.length ? games : fetchRawGames();
 });
 
 /** One game by code: bounded DB read first, then the full feed as a fallback. */
