@@ -801,7 +801,46 @@ export interface CollectionTab {
   categories: CollectionCategory[]; // sub-categories under this club (may be empty)
 }
 
-export async function getCollections(): Promise<CollectionTab[]> {
+// Read the admin-curated tabs straight from the shared Turso DB (the same source
+// as the games), so the Games page doesn't wait on the main system's HTTP feed
+// (which cold-starts on Render's free tier). Returns null when no DB is configured
+// so the caller falls back to the feed.
+async function collectionsFromDb(): Promise<CollectionTab[] | null> {
+  const db = wexmeDb();
+  if (!db) return null;
+  const colsRes = await db.execute(
+    "SELECT id, name, slug, sort_order, parent_id, visible FROM collections WHERE visible = 1 ORDER BY sort_order, id"
+  );
+  const cgRes = await db.execute(
+    "SELECT cg.collection_id AS cid, g.public_code AS code FROM collection_games cg JOIN games g ON g.id = cg.game_id ORDER BY cg.sort_order, cg.game_id"
+  );
+  const codesByCol = new Map<number, string[]>();
+  for (const r of cgRes.rows) {
+    const cid = n(r.cid);
+    const arr = codesByCol.get(cid);
+    if (arr) arr.push(s(r.code));
+    else codesByCol.set(cid, [s(r.code)]);
+  }
+  const all = colsRes.rows.map((r) => ({
+    id: n(r.id),
+    name: s(r.name),
+    slug: s(r.slug),
+    parentId: r.parent_id == null ? null : n(r.parent_id),
+    codes: codesByCol.get(n(r.id)) ?? [],
+  }));
+  return all
+    .filter((c) => c.parentId == null)
+    .map((club) => ({
+      name: club.name,
+      slug: club.slug,
+      codes: club.codes,
+      categories: all
+        .filter((c) => c.parentId === club.id)
+        .map((c) => ({ name: c.name, slug: c.slug, codes: c.codes })),
+    }));
+}
+
+async function collectionsFromFeed(): Promise<CollectionTab[]> {
   try {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 4500);
@@ -825,6 +864,17 @@ export async function getCollections(): Promise<CollectionTab[]> {
     return [];
   }
 }
+
+// DB-direct first (fast), HTTP feed as fallback; cache() dedups within a request.
+export const getCollections = cache(async (): Promise<CollectionTab[]> => {
+  try {
+    const fromDb = await withTimeout(collectionsFromDb(), DB_TIMEOUT_MS, null);
+    if (fromDb) return fromDb;
+  } catch {
+    /* fall through to the feed */
+  }
+  return collectionsFromFeed();
+});
 
 export interface BoxScoreRow {
   playerId: string;

@@ -25,18 +25,15 @@ export default async function GamesPage({
 }) {
   const { league, tab, cat } = await searchParams;
 
-  // Admin-curated tabs (collections) from Courtside Live, appended after the built-ins.
-  const collections = await getCollections();
+  // Fetch the admin-curated tabs and the WEXME feed in parallel (both are cached),
+  // so the Games page isn't waiting on them one after the other.
+  const [collections, wexme] = await Promise.all([getCollections(), getWexmeFeed()]);
   const activeTab = tab && collections.some((c) => c.slug === tab) ? tab : null;
   const active = activeTab
     ? null
     : ["NBA", "PBA", "FIBA", "WEXME"].includes(league ?? "")
     ? (league as string)
     : "all";
-
-  // WEXME feed is needed for All, the WEXME tab, and any custom tab (tabs hold WEXME games).
-  const needsWexme = activeTab !== null || active === "WEXME" || active === "all";
-  const wexme = needsWexme ? await getWexmeFeed() : { live: [], scheduled: [], final: [] };
 
   // A game placed in any custom tab/portfolio lives ONLY in that tab — drop it from
   // the generic WEXME bucket so it doesn't double-post. (All/NBA/PBA/FIBA unaffected.)
