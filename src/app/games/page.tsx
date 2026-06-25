@@ -38,6 +38,15 @@ export default async function GamesPage({
   const needsWexme = activeTab !== null || active === "WEXME" || active === "all";
   const wexme = needsWexme ? await getWexmeFeed() : { live: [], scheduled: [], final: [] };
 
+  // A game placed in any custom tab/portfolio lives ONLY in that tab — drop it from
+  // the generic WEXME bucket so it doesn't double-post. (All/NBA/PBA/FIBA unaffected.)
+  const tabbedCodes = new Set(collections.flatMap((c) => c.codes));
+  const hideTabbed = active === "WEXME";
+  const boardLive = hideTabbed ? wexme.live.filter((m) => !tabbedCodes.has(m.game.id)) : wexme.live;
+  const boardScheduled = hideTabbed
+    ? wexme.scheduled.filter((m) => !tabbedCodes.has(m.game.id))
+    : wexme.scheduled;
+
   // A custom tab shows its games in the admin's drag order; built-in tabs group by date.
   let ordered: GameWithTeams[] | null = null;
   let sections: { date: string; games: GameWithTeams[] }[] = [];
@@ -50,7 +59,7 @@ export default async function GamesPage({
   } else {
     let finals: GameWithTeams[];
     if (active === "WEXME") {
-      finals = wexme.final;
+      finals = wexme.final.filter((m) => !tabbedCodes.has(m.game.id));
     } else {
       const staticGames = listGames(active === "all" ? undefined : { league: active as League });
       finals = staticGames.map((g) => ({
@@ -85,7 +94,7 @@ export default async function GamesPage({
   const showLive =
     !activeTab &&
     (active === "WEXME" || active === "all") &&
-    (wexme.live.length > 0 || wexme.scheduled.length > 0);
+    (boardLive.length > 0 || boardScheduled.length > 0);
   const isEmpty = activeTab ? ordered!.length === 0 : sections.length === 0;
 
   return (
@@ -116,7 +125,11 @@ export default async function GamesPage({
 
       {showLive && (
         <div className="mb-12">
-          <LiveBoard initialLive={wexme.live} initialScheduled={wexme.scheduled} />
+          <LiveBoard
+            initialLive={boardLive}
+            initialScheduled={boardScheduled}
+            excludeCodes={hideTabbed ? [...tabbedCodes] : []}
+          />
         </div>
       )}
 

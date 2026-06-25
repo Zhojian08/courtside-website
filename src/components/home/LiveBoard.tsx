@@ -12,12 +12,18 @@ import { LiveGameCard } from "@/components/cards/LiveGameCard";
 export function LiveBoard({
   initialLive,
   initialScheduled,
+  excludeCodes = [],
 }: {
   initialLive: GameWithTeams[];
   initialScheduled: GameWithTeams[];
+  excludeCodes?: string[]; // game codes to hide (e.g. games curated into a custom tab)
 }) {
-  const [live, setLive] = useState(initialLive);
-  const [scheduled, setScheduled] = useState(initialScheduled);
+  // Drop excluded games from both the server-provided lists and every poll, so a
+  // game placed in a portfolio never reappears here when the board refreshes.
+  const exclude = new Set(excludeCodes);
+  const keep = (arr: GameWithTeams[]) => arr.filter((g) => !exclude.has(g.game.id));
+  const [live, setLive] = useState(() => keep(initialLive));
+  const [scheduled, setScheduled] = useState(() => keep(initialScheduled));
   const [pulse, setPulse] = useState(false);
 
   useEffect(() => {
@@ -28,8 +34,8 @@ export function LiveBoard({
         if (!res.ok) return;
         const data = await res.json();
         if (!alive) return;
-        setLive(data.live ?? []);
-        setScheduled(data.scheduled ?? []);
+        setLive(keep(data.live ?? []));
+        setScheduled(keep(data.scheduled ?? []));
         setPulse(true);
         setTimeout(() => alive && setPulse(false), 600);
       } catch {
@@ -41,6 +47,8 @@ export function LiveBoard({
       alive = false;
       clearInterval(id);
     };
+    // excludeCodes is fixed for the life of this page render; poll once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (live.length === 0 && scheduled.length === 0) return null;
