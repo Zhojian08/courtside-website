@@ -3,6 +3,7 @@ import { clsx } from "clsx";
 import { listGames, getTeam, getWexmeFeed, getCollections } from "@/lib/courtside";
 import type { GameWithTeams, League } from "@/lib/courtside/types";
 import { GameCard } from "@/components/cards/GameCard";
+import { ClubGames } from "@/components/games/ClubGames";
 import { LiveBoard } from "@/components/home/LiveBoard";
 import { RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { formatDateLong } from "@/lib/format";
@@ -46,23 +47,20 @@ export default async function GamesPage({
     ? wexme.scheduled.filter((m) => !tabbedCodes.has(m.game.id))
     : wexme.scheduled;
 
-  // A custom tab shows its games in the admin's drag order; built-in tabs group by date.
-  let ordered: GameWithTeams[] | null = null;
+  // A club shows its games (filtered by category client-side); built-ins group by date.
+  let clubGames: GameWithTeams[] = [];
   let sections: { date: string; games: GameWithTeams[] }[] = [];
 
   const activeClub = activeTab ? collections.find((c) => c.slug === activeTab)! : null;
   const clubCats = activeClub?.categories ?? [];
-  const activeCat = activeClub && cat ? clubCats.find((x) => x.slug === cat) ?? null : null;
 
   if (activeTab) {
     const byCode = new Map<string, GameWithTeams>();
     for (const m of [...wexme.live, ...wexme.scheduled, ...wexme.final]) byCode.set(m.game.id, m);
-    // A selected category shows its games; a club with no category selected shows
-    // everything in it (its direct games + all its categories' games).
-    const codes = activeCat
-      ? activeCat.codes
-      : [...new Set([...activeClub!.codes, ...clubCats.flatMap((x) => x.codes)])];
-    ordered = codes.map((code) => byCode.get(code)).filter((m): m is GameWithTeams => !!m);
+    // The club's full game set (direct games + every category), in order. The
+    // client component filters it by category in the browser, so switching is instant.
+    const codes = [...new Set([...activeClub!.codes, ...clubCats.flatMap((x) => x.codes)])];
+    clubGames = codes.map((code) => byCode.get(code)).filter((m): m is GameWithTeams => !!m);
   } else {
     let finals: GameWithTeams[];
     if (active === "WEXME") {
@@ -88,7 +86,6 @@ export default async function GamesPage({
   }
 
   const filters = [...BASE_FILTERS, ...collections.map((c) => ({ key: `tab:${c.slug}`, label: c.name }))];
-  const activeColName = activeCat ? activeCat.name : activeClub?.name;
   const isActive = (key: string) =>
     key.startsWith("tab:") ? activeTab === key.slice(4) : !activeTab && active === key;
   const hrefFor = (key: string) =>
@@ -102,7 +99,7 @@ export default async function GamesPage({
     !activeTab &&
     (active === "WEXME" || active === "all") &&
     (boardLive.length > 0 || boardScheduled.length > 0);
-  const isEmpty = activeTab ? ordered!.length === 0 : sections.length === 0;
+  const isEmpty = !activeTab && sections.length === 0;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
@@ -130,33 +127,6 @@ export default async function GamesPage({
         ))}
       </div>
 
-      {activeClub && clubCats.length > 0 && (
-        <div className="mb-8 -mt-4 flex flex-wrap items-center gap-2">
-          <span className="mr-1 text-xs uppercase tracking-wider text-faint">{activeClub.name}:</span>
-          <Link
-            href={`/games?tab=${activeClub.slug}`}
-            className={clsx(
-              "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
-              !activeCat ? "bg-accent text-black" : "border border-line text-muted hover:text-fg"
-            )}
-          >
-            All
-          </Link>
-          {clubCats.map((c) => (
-            <Link
-              key={c.slug}
-              href={`/games?tab=${activeClub.slug}&cat=${c.slug}`}
-              className={clsx(
-                "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
-                activeCat?.slug === c.slug ? "bg-accent text-black" : "border border-line text-muted hover:text-fg"
-              )}
-            >
-              {c.name}
-            </Link>
-          ))}
-        </div>
-      )}
-
       {showLive && (
         <div className="mb-12">
           <LiveBoard
@@ -167,22 +137,19 @@ export default async function GamesPage({
         </div>
       )}
 
-      {isEmpty ? (
+      {activeTab ? (
+        <ClubGames
+          clubName={activeClub!.name}
+          categories={clubCats}
+          games={clubGames}
+          initialCat={cat}
+        />
+      ) : isEmpty ? (
         <p className="text-muted">
-          {activeTab
-            ? "No games in this tab yet."
-            : active === "WEXME"
+          {active === "WEXME"
             ? "No completed WEXME games yet — finals will appear here as your system publishes them."
             : "No games found."}
         </p>
-      ) : activeTab ? (
-        <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {ordered!.map(({ game, home, away }) => (
-            <RevealItem key={game.id}>
-              <GameCard game={game} home={home} away={away} badge={activeColName} />
-            </RevealItem>
-          ))}
-        </RevealGroup>
       ) : (
         <div className="space-y-10">
           {sections.map(({ date, games }) => (
