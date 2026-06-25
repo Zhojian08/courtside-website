@@ -46,10 +46,12 @@ export {
   getWexmePlayer,
   getWexmePlayerGames,
   getWexmeSiteStats,
+  getCollections,
   type GameWithTeams,
   type WexmeBoxScore,
   type BoxScoreTeam,
   type BoxScoreRow,
+  type CollectionTab,
 } from "./wexme";
 
 /* ---------------- Teams ---------------- */

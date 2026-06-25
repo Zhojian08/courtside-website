@@ -760,6 +760,29 @@ export async function getWexmeGameDetail(code: string): Promise<GameWithTeams | 
   return rg ? toGameWithTeams(rg) : null;
 }
 
+/** Admin-curated tabs ("collections") from Courtside Live: ordered sets of WEXME
+ *  game codes, shown as extra filter pills on the Games page. Read from the public
+ *  feed (visible tabs only). Returns [] on any failure so the page still renders. */
+export interface CollectionTab {
+  name: string;
+  slug: string;
+  codes: string[];
+}
+
+export async function getCollections(): Promise<CollectionTab[]> {
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 4500);
+    const res = await fetch(`${MAIN}/api/feed/collections`, { signal: ctrl.signal, cache: "no-store" });
+    clearTimeout(timer);
+    if (!res.ok) return [];
+    const data = (await res.json()) as { collections?: CollectionTab[] };
+    return (data.collections ?? []).filter((c) => c && c.slug && Array.isArray(c.codes));
+  } catch {
+    return [];
+  }
+}
+
 export interface BoxScoreRow {
   playerId: string;
   name: string;

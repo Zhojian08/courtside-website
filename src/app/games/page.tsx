@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { clsx } from "clsx";
-import { listGames, getTeam, getWexmeFeed } from "@/lib/courtside";
+import { listGames, getTeam, getWexmeFeed, getCollections } from "@/lib/courtside";
 import type { GameWithTeams, League } from "@/lib/courtside/types";
 import { GameCard } from "@/components/cards/GameCard";
 import { LiveBoard } from "@/components/home/LiveBoard";
@@ -10,7 +10,7 @@ import { formatDateLong } from "@/lib/format";
 export const metadata = { title: "Games" };
 export const dynamic = "force-dynamic";
 
-const FILTERS = [
+const BASE_FILTERS = [
   { key: "all", label: "All" },
   { key: "NBA", label: "NBA" },
   { key: "PBA", label: "PBA" },
@@ -21,36 +21,71 @@ const FILTERS = [
 export default async function GamesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ league?: string }>;
+  searchParams: Promise<{ league?: string; tab?: string }>;
 }) {
-  const { league } = await searchParams;
-  const active =
-    ["NBA", "PBA", "FIBA", "WEXME"].includes(league ?? "") ? (league as string) : "all";
+  const { league, tab } = await searchParams;
 
-  const needsWexme = active === "WEXME" || active === "all";
+  // Admin-curated tabs (collections) from Courtside Live, appended after the built-ins.
+  const collections = await getCollections();
+  const activeTab = tab && collections.some((c) => c.slug === tab) ? tab : null;
+  const active = activeTab
+    ? null
+    : ["NBA", "PBA", "FIBA", "WEXME"].includes(league ?? "")
+    ? (league as string)
+    : "all";
+
+  // WEXME feed is needed for All, the WEXME tab, and any custom tab (tabs hold WEXME games).
+  const needsWexme = activeTab !== null || active === "WEXME" || active === "all";
   const wexme = needsWexme ? await getWexmeFeed() : { live: [], scheduled: [], final: [] };
 
-  let finals: GameWithTeams[];
-  if (active === "WEXME") {
-    finals = wexme.final;
+  // A custom tab shows its games in the admin's drag order; built-in tabs group by date.
+  let ordered: GameWithTeams[] | null = null;
+  let sections: { date: string; games: GameWithTeams[] }[] = [];
+
+  if (activeTab) {
+    const col = collections.find((c) => c.slug === activeTab)!;
+    const byCode = new Map<string, GameWithTeams>();
+    for (const m of [...wexme.live, ...wexme.scheduled, ...wexme.final]) byCode.set(m.game.id, m);
+    ordered = col.codes.map((code) => byCode.get(code)).filter((m): m is GameWithTeams => !!m);
   } else {
-    const staticGames = listGames(active === "all" ? undefined : { league: active as League });
-    finals = staticGames.map((g) => ({
-      game: g,
-      home: getTeam(g.homeTeamId)!,
-      away: getTeam(g.awayTeamId)!,
-    }));
-    if (active === "all") {
-      finals = [...wexme.final, ...finals].sort((a, b) => b.game.date.localeCompare(a.game.date));
+    let finals: GameWithTeams[];
+    if (active === "WEXME") {
+      finals = wexme.final;
+    } else {
+      const staticGames = listGames(active === "all" ? undefined : { league: active as League });
+      finals = staticGames.map((g) => ({
+        game: g,
+        home: getTeam(g.homeTeamId)!,
+        away: getTeam(g.awayTeamId)!,
+      }));
+      if (active === "all") {
+        finals = [...wexme.final, ...finals].sort((a, b) => b.game.date.localeCompare(a.game.date));
+      }
     }
+    const byDate = new Map<string, GameWithTeams[]>();
+    for (const item of finals) {
+      const arr = byDate.get(item.game.date) ?? [];
+      arr.push(item);
+      byDate.set(item.game.date, arr);
+    }
+    sections = [...byDate.entries()].map(([date, games]) => ({ date, games }));
   }
 
-  const byDate = new Map<string, GameWithTeams[]>();
-  for (const item of finals) {
-    const arr = byDate.get(item.game.date) ?? [];
-    arr.push(item);
-    byDate.set(item.game.date, arr);
-  }
+  const filters = [...BASE_FILTERS, ...collections.map((c) => ({ key: `tab:${c.slug}`, label: c.name }))];
+  const isActive = (key: string) =>
+    key.startsWith("tab:") ? activeTab === key.slice(4) : !activeTab && active === key;
+  const hrefFor = (key: string) =>
+    key.startsWith("tab:")
+      ? `/games?tab=${key.slice(4)}`
+      : key === "all"
+      ? "/games"
+      : `/games?league=${key}`;
+
+  const showLive =
+    !activeTab &&
+    (active === "WEXME" || active === "all") &&
+    (wexme.live.length > 0 || wexme.scheduled.length > 0);
+  const isEmpty = activeTab ? ordered!.length === 0 : sections.length === 0;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
@@ -64,13 +99,13 @@ export default async function GamesPage({
       </header>
 
       <div className="mb-8 flex flex-wrap gap-2">
-        {FILTERS.map((f) => (
+        {filters.map((f) => (
           <Link
             key={f.key}
-            href={f.key === "all" ? "/games" : `/games?league=${f.key}`}
+            href={hrefFor(f.key)}
             className={clsx(
               "rounded-lg px-4 py-2 text-sm font-semibold transition-colors",
-              active === f.key ? "bg-accent text-black" : "border border-line text-muted hover:text-fg"
+              isActive(f.key) ? "bg-accent text-black" : "border border-line text-muted hover:text-fg"
             )}
           >
             {f.label}
@@ -78,28 +113,37 @@ export default async function GamesPage({
         ))}
       </div>
 
-      {(active === "WEXME" || active === "all") &&
-        (wexme.live.length > 0 || wexme.scheduled.length > 0) && (
-          <div className="mb-12">
-            <LiveBoard initialLive={wexme.live} initialScheduled={wexme.scheduled} />
-          </div>
-        )}
+      {showLive && (
+        <div className="mb-12">
+          <LiveBoard initialLive={wexme.live} initialScheduled={wexme.scheduled} />
+        </div>
+      )}
 
-      {finals.length === 0 ? (
+      {isEmpty ? (
         <p className="text-muted">
-          {active === "WEXME"
+          {activeTab
+            ? "No games in this tab yet."
+            : active === "WEXME"
             ? "No completed WEXME games yet — finals will appear here as your system publishes them."
             : "No games found."}
         </p>
+      ) : activeTab ? (
+        <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {ordered!.map(({ game, home, away }) => (
+            <RevealItem key={game.id}>
+              <GameCard game={game} home={home} away={away} />
+            </RevealItem>
+          ))}
+        </RevealGroup>
       ) : (
         <div className="space-y-10">
-          {[...byDate.entries()].map(([date, dayGames]) => (
+          {sections.map(({ date, games }) => (
             <section key={date}>
               <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-faint">
                 {formatDateLong(date)}
               </h2>
               <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {dayGames.map(({ game, home, away }) => (
+                {games.map(({ game, home, away }) => (
                   <RevealItem key={game.id}>
                     <GameCard game={game} home={home} away={away} />
                   </RevealItem>
